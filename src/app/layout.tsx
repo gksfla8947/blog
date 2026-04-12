@@ -24,11 +24,11 @@ export const metadata: Metadata = {
     default: "DEVS VLTRA",
     template: "%s | DEVS VLTRA",
   },
-  description: "더 너머의 개발자 — Beyond the Limit. 개발 관련 정리 블로그 by 강건너물구경",
+  description: "배운것들 정리합니다 — 개발 블로그 by 강건너물구경",
   metadataBase: new URL(BASE_URL),
   openGraph: {
     title: "DEVS VLTRA",
-    description: "더 너머의 개발자 — Beyond the Limit. 개발 관련 정리 블로그 by 강건너물구경",
+    description: "배운것들 정리합니다 — 개발 블로그 by 강건너물구경",
     url: BASE_URL,
     siteName: "DEVS VLTRA",
     locale: "ko_KR",
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "DEVS VLTRA",
-    description: "더 너머의 개발자 — Beyond the Limit. 개발 관련 정리 블로그 by 강건너물구경",
+    description: "배운것들 정리합니다 — 개발 블로그 by 강건너물구경",
   },
   verification: {
     google: "obgsY-znaB3CCPlpQiJRyuwGe0U8eYTPm8lCa72gTKI",
