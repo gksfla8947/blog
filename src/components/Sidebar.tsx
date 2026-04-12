@@ -31,6 +31,9 @@ export default function Sidebar({
         </div>
       </div>
 
+      {/* Visitor Counter */}
+      <VisitorCounter />
+
       {/* Categories */}
       <div className="sidebar-card">
         <h4 className="sidebar-title">
@@ -62,9 +65,6 @@ export default function Sidebar({
           ))}
         </ul>
       </div>
-
-      {/* Visitor Counter */}
-      <VisitorCounter />
     </aside>
   );
 }
