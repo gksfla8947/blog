@@ -96,7 +96,7 @@ export default async function PostPage({ params }: { params: Params }) {
             <div className="flex items-center gap-3 text-sm text-white/70">
               <img src="/profile.svg" alt="profile" className="w-8 h-8 rounded-full object-cover ring-2 ring-white/20" />
               <div>
-                <div className="text-white/90 font-medium text-sm">gksfla8947</div>
+                <div className="text-white/90 font-medium text-sm">강건너물구경</div>
                 <div className="flex items-center gap-2 text-xs text-white/60">
                   <time dateTime={post.date}>{format(new Date(post.date), "yyyy.MM.dd")}</time>
                   <span className="w-1 h-1 rounded-full bg-white/40" />

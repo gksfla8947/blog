@@ -14,7 +14,7 @@ export default function Footer() {
             <p className="text-xs text-[var(--muted)]">Beyond the Limit</p>
           </div>
           <p className="text-xs text-[var(--muted)]">
-            &copy; {new Date().getFullYear()} gksfla8947. All rights reserved.
+            &copy; {new Date().getFullYear()} 강건너물구경. All rights reserved.
           </p>
         </div>
       </div>

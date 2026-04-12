@@ -20,10 +20,6 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
             <div className="flex-1 min-w-0">
-              <div className="inline-flex items-center gap-2.5 px-3 py-1.5 mb-5 text-xs font-medium rounded-full border border-[var(--accent)]/20 bg-[var(--card)]/70 text-[var(--foreground)] backdrop-blur-sm shadow-sm">
-                <img src="/profile.svg" alt="profile" className="w-5 h-5 rounded-full object-cover" />
-                gksfla8947
-              </div>
               <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 leading-tight">
                 <span className="gradient-text">DEVS</span>
                 <br />

@@ -23,13 +23,10 @@ export default function Sidebar({
             alt="profile"
             className="w-24 h-24 rounded-full object-cover ring-2 ring-[var(--accent)]/20 mb-3"
           />
-          <h3 className="font-bold text-lg text-[var(--foreground)]">gksfla8947</h3>
-          <p className="text-sm text-[var(--accent)] font-medium mt-0.5">Developer</p>
+          <h3 className="font-bold text-lg text-[var(--foreground)]">강건너물구경</h3>
           <div className="w-8 h-0.5 bg-[var(--accent)]/20 rounded-full my-3" />
           <p className="text-sm text-[var(--muted)] leading-relaxed">
-            더 너머를 향해 성장하는 개발자.
-            <br />
-            CS 지식과 개발 경험을 기록합니다.
+            배운것들 정리합니다
           </p>
         </div>
       </div>
