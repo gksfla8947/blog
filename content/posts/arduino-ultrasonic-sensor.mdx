@@ -1,0 +1,84 @@
+---
+title: "[아두이노] 초음파 센서"
+date: "2020-10-17"
+description: "초음파 센서를 이용한 거리 측정 원리와 구현 방법을 알아봅니다."
+category: "임베디드"
+tags: ["아두이노", "초음파센서", "센서", "거리측정"]
+---
+
+## 초음파 센서란?
+
+물체와의 거리를 초음파를 통해 알아내는 센서이다.
+
+초음파를 발신하는 **Trig핀**, 초음파를 받아들이는 **Echo핀**으로 이루어져 있다.
+
+---
+
+## 예제 코드
+
+설정된 INTERVAL마다 초음파 센서를 통해 거리를 측정하고 이를 시리얼 모니터에 출력하는 코드이다.
+
+```cpp
+#define PIN_TRIG 12
+#define PIN_ECHO 13
+#define PIN_LED 9
+#define INTERVAL 100 // sampling interval (unit: ms)
+#define SOUND_VEL 346.0
+
+#define DIST_MAX 300
+#define DIST_MIN 100
+
+float distance;
+float timeout;
+float scale;
+
+unsigned long last_sampling_time; // unit: ms
+
+void setup() {
+  pinMode(PIN_TRIG, OUTPUT);
+  pinMode(PIN_ECHO, INPUT);
+  pinMode(PIN_LED, OUTPUT);
+  digitalWrite(PIN_TRIG, LOW);
+
+  Serial.begin(57600);
+
+  distance = 0;
+  timeout = (INTERVAL / 2) * 1000.0;
+  scale = 0.001 * 0.5 * SOUND_VEL;
+  last_sampling_time = 0;
+}
+
+void loop() {
+  if(millis() < last_sampling_time) return;
+  distance = USS_Measure(PIN_TRIG, PIN_ECHO);
+  Serial.println(distance);
+  last_sampling_time += INTERVAL;
+}
+
+float USS_Measure(int trig, int echo) {
+  float reading;
+  digitalWrite(trig, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trig, LOW);
+
+  reading = pulseIn(echo, HIGH, timeout) * scale;
+  if(reading < DIST_MIN || reading > DIST_MAX) reading = 0;
+  return reading;
+}
+```
+
+---
+
+## 거리 계산 원리
+
+`pulseIn` 함수는 신호가 출발하고 장애물에 부딪혀 다시 Echo핀에 되돌아오기까지의 시간을 ms 단위로 리턴한다.
+
+**시간 x 속력 = 거리** 이므로
+
+`pulseIn` 함수에 scale을 곱해 보정을 해줘야 하는데, 실제 거리는 왕복 거리의 1/2이고 1000ms는 1초이므로
+
+```
+scale = 0.5 * 0.001 * 음속
+```
+
+`reading`에 `pulseIn * scale` 값을 넣어주고, reading 값이 설정된 범위 밖을 나가면 0으로 초기화시켜주고 리턴한다.

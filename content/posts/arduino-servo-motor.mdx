@@ -1,0 +1,144 @@
+---
+title: "[아두이노] 서보모터 제어"
+date: "2020-10-18"
+description: "서보모터의 개념과 아두이노 라이브러리를 이용한 제어 방법을 알아봅니다."
+category: "임베디드"
+tags: ["아두이노", "서보모터", "PWM", "액추에이터"]
+---
+
+## 서보 모터란?
+
+실습에 사용할 모델명은 **MG90S**이다.
+
+서보는 액추에이터의 한 종류이며 입력된 제어량에 따라 회전각을 조절하여 위치 제어를 수행한다.
+
+PWM 방식으로 제어하며, 이전에 LED PWM 제어에서 알아보았던 `analogWrite()` 함수가 아닌 별도의 서보 제어를 위한 라이브러리가 존재한다.
+
+50Hz의 PWM 주기를 갖기 때문에 위치 제어 명령은 초당 50회 갱신 가능하다.
+
+이때 듀티값은 **1~2ms** 범위로 설정되어 있다:
+
+- **1ms** : 반시계방향 최대 회전
+- **1.5ms** : 중립
+- **2ms** : 시계방향 최대 회전
+
+---
+
+## 서보 라이브러리
+
+- **`attach()`** — 서보 객체를 핀에 연결
+- **`write(int degree)`** — 정수형 각도(unit: degree) 값으로 서보 위치 제어
+- **`writeMicroseconds(int us)`** — 펄스 폭(unit: us)으로 서보 위치 제어
+- **`read()`** — 마지막으로 입력된 서보 위치 리턴
+- **`attached()`** — 서보 객체가 핀에 연결되었는지 확인
+- **`detach()`** — 서보 객체를 핀에서 해제
+
+---
+
+## 예제 1: 기본 각도 제어
+
+2초 간격으로 0도와 180도 사이를 왔다갔다하는 코드. 카운트가 10이 되면 `detach`를 통해 서보 동작을 멈춘다.
+
+```cpp
+#include <Servo.h>
+#define PIN_SERVO 10
+
+Servo myservo;
+
+int angle;
+int amount;
+int count;
+
+void setup() {
+  myservo.attach(PIN_SERVO);
+  myservo.write(0);
+  delay(1000);
+  angle = 0;
+  amount = 180;
+  count = 0;
+}
+
+void loop() {
+  angle += amount;
+  count++;
+
+  myservo.write(angle);
+  if(angle == 180 || angle == 0) {
+    amount = -amount;
+  }
+  if(count == 10) myservo.detach();
+  delay(2000);
+}
+```
+
+---
+
+## 예제 2: 속도 제어
+
+서보 속도를 제어해 1초 간격으로 왔다갔다하는 코드.
+
+```cpp
+#include <Servo.h>
+
+#define PIN_SERVO 10
+
+#define _DUTY_MIN 553
+#define _DUTY_NEU 1476
+#define _DUTY_MAX 2399
+
+#define _POS_START (_DUTY_MIN + 100)
+#define _POS_END (_DUTY_MAX - 100)
+
+#define _SERVO_SPEED 600
+#define INTERVAL 20
+
+unsigned long last_sampling_time;
+int duty_chg_per_interval;
+float pause_time;
+Servo myservo;
+int duty_target, duty_curr;
+
+void setup() {
+  myservo.attach(PIN_SERVO);
+  duty_target = duty_curr = _POS_START;
+  myservo.writeMicroseconds(duty_curr);
+
+  duty_chg_per_interval = (int)((float)(_DUTY_MAX - _DUTY_MIN)
+    * ((float)_SERVO_SPEED / (float)180)
+    * ((float)INTERVAL / (float)1000));
+
+  last_sampling_time = 0;
+}
+
+void loop() {
+  if(millis() < last_sampling_time + INTERVAL) return;
+
+  if(duty_target >= duty_curr) {
+    duty_curr += duty_chg_per_interval;
+    if(duty_curr > duty_target) {
+      duty_curr = duty_target;
+    }
+  }
+  else {
+    duty_curr -= duty_chg_per_interval;
+    if(duty_curr < duty_target) {
+      duty_curr = duty_target;
+    }
+  }
+
+  myservo.writeMicroseconds(duty_curr);
+
+  if(duty_curr == duty_target) {
+    if(duty_target == _POS_END) {
+      duty_target = _POS_START;
+      delay(1000);
+    }
+    else {
+      duty_target = _POS_END;
+      delay(1000);
+    }
+  }
+
+  last_sampling_time += INTERVAL;
+}
+```
