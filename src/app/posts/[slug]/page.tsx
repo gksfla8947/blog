@@ -1,10 +1,6 @@
 import { notFound } from "next/navigation";
 import { getAllPosts, getPostBySlug } from "@/lib/posts";
 import { format } from "date-fns";
-import { MDXRemote } from "next-mdx-remote/rsc";
-import remarkGfm from "remark-gfm";
-import rehypeSlug from "rehype-slug";
-import rehypeHighlight from "rehype-highlight";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -19,7 +15,7 @@ const THUMB_ICONS: Record<number, string> = {
 type Params = Promise<{ slug: string }>;
 
 export async function generateStaticParams() {
-  const posts = getAllPosts();
+  const posts = await getAllPosts();
   return posts.map((post) => ({ slug: post.slug }));
 }
 
@@ -28,7 +24,8 @@ const BASE_URL = "https://devs-vltra.vercel.app";
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug } = await params;
   try {
-    const post = getPostBySlug(slug);
+    const post = await getPostBySlug(slug);
+    if (!post) return { title: "Not Found" };
     return {
       title: post.title,
       description: post.description,
@@ -54,12 +51,8 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 export default async function PostPage({ params }: { params: Params }) {
   const { slug } = await params;
 
-  let post;
-  try {
-    post = getPostBySlug(slug);
-  } catch {
-    notFound();
-  }
+  const post = await getPostBySlug(slug);
+  if (!post) notFound();
 
   return (
     <article className="animate-in">
@@ -123,17 +116,10 @@ export default async function PostPage({ params }: { params: Params }) {
 
       {/* Post Content */}
       <div className="max-w-3xl mx-auto px-6 py-12">
-        <div className="prose prose-neutral dark:prose-invert max-w-none">
-          <MDXRemote
-            source={post.content}
-            options={{
-              mdxOptions: {
-                remarkPlugins: [remarkGfm],
-                rehypePlugins: [rehypeSlug, rehypeHighlight],
-              },
-            }}
-          />
-        </div>
+        <div
+          className="prose prose-neutral dark:prose-invert max-w-none"
+          dangerouslySetInnerHTML={{ __html: post.content }}
+        />
       </div>
     </article>
   );

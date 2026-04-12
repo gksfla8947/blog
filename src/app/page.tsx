@@ -2,8 +2,10 @@ import { getAllPosts } from "@/lib/posts";
 import HeroIllustration from "@/components/HeroIllustration";
 import PostList from "@/components/PostList";
 
-export default function HomePage() {
-  const posts = getAllPosts();
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const posts = await getAllPosts();
 
   // Build category list with counts
   const catMap = new Map<string, number>();
