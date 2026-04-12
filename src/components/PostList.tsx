@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import PostCard from "./PostCard";
 import Sidebar from "./Sidebar";
 import type { Post } from "@/lib/posts";
@@ -12,11 +12,17 @@ interface PostListProps {
 
 export default function PostList({ posts, categories }: PostListProps) {
   const [activeCategory, setActiveCategory] = useState("All");
+  const isFirstRender = useRef(true);
 
   const filtered =
     activeCategory === "All"
       ? posts
       : posts.filter((p) => p.category === activeCategory);
+
+  const handleCategoryChange = (cat: string) => {
+    isFirstRender.current = false;
+    setActiveCategory(cat);
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10">
@@ -28,7 +34,7 @@ export default function PostList({ posts, categories }: PostListProps) {
               categories={categories}
               totalPosts={posts.length}
               activeCategory={activeCategory}
-              onCategoryChange={setActiveCategory}
+              onCategoryChange={handleCategoryChange}
             />
           </div>
         </div>
@@ -56,7 +62,10 @@ export default function PostList({ posts, categories }: PostListProps) {
               <p className="text-[var(--muted)]">아직 작성된 글이 없습니다.</p>
             </div>
           ) : (
-            <div className="stagger-in flex flex-col gap-4">
+            <div
+              key={activeCategory}
+              className={`flex flex-col gap-4 ${isFirstRender.current ? "stagger-in" : "animate-fade"}`}
+            >
               {filtered.map((post) => (
                 <PostCard key={post.slug} post={post} />
               ))}
