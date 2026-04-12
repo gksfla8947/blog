@@ -1,4 +1,9 @@
-import { kv } from "@vercel/kv";
+import { Redis } from "@upstash/redis";
+
+const redis = new Redis({
+  url: process.env.KV_REST_API_URL!,
+  token: process.env.KV_REST_API_TOKEN!,
+});
 
 function getTodayKey() {
   const now = new Date();
@@ -13,16 +18,15 @@ export async function POST() {
     const todayKey = getTodayKey();
 
     const [today, total] = await Promise.all([
-      kv.incr(todayKey),
-      kv.incr("visitors:total"),
+      redis.incr(todayKey),
+      redis.incr("visitors:total"),
     ]);
 
     // Set TTL for daily key (48 hours) so old keys auto-cleanup
-    await kv.expire(todayKey, 60 * 60 * 48);
+    await redis.expire(todayKey, 60 * 60 * 48);
 
     return Response.json({ today, total });
   } catch {
-    // KV not configured yet — return zeros
     return Response.json({ today: 0, total: 0 });
   }
 }
@@ -32,8 +36,8 @@ export async function GET() {
     const todayKey = getTodayKey();
 
     const [today, total] = await Promise.all([
-      kv.get<number>(todayKey),
-      kv.get<number>("visitors:total"),
+      redis.get<number>(todayKey),
+      redis.get<number>("visitors:total"),
     ]);
 
     return Response.json({ today: today ?? 0, total: total ?? 0 });
