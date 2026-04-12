@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const BASE_URL = "https://blog-seven-zeta-42.vercel.app";
+const BASE_URL = "https://my-cs-academia.vercel.app";
 
 export const metadata: Metadata = {
   title: {
