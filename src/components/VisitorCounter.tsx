@@ -7,15 +7,16 @@ export default function VisitorCounter() {
   const [total, setTotal] = useState<number | null>(null);
 
   useEffect(() => {
-    const visited = sessionStorage.getItem("visited");
-    const method = visited ? "GET" : "POST";
+    const today = new Date().toISOString().slice(0, 10);
+    const lastVisit = localStorage.getItem("lastVisitDate");
+    const method = lastVisit === today ? "GET" : "POST";
 
     fetch("/api/visitors", { method })
       .then((res) => res.json())
       .then((data) => {
         setToday(data.today);
         setTotal(data.total);
-        if (!visited) sessionStorage.setItem("visited", "1");
+        if (lastVisit !== today) localStorage.setItem("lastVisitDate", today);
       })
       .catch(() => {
         setToday(0);
