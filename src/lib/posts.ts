@@ -11,8 +11,10 @@ export interface Post {
   date: string;
   description: string;
   tags: string[];
+  category: string;
   readingTime: string;
   content: string;
+  thumbnail: number;
 }
 
 export function getAllPosts(): Post[] {
@@ -34,15 +36,31 @@ export function getPostBySlug(slug: string): Post {
   const { data, content } = matter(fileContents);
   const stats = readingTime(content);
 
+  // Generate a consistent thumbnail index from the slug
+  let hash = 0;
+  for (let i = 0; i < slug.length; i++) {
+    hash = ((hash << 5) - hash + slug.charCodeAt(i)) | 0;
+  }
+  const thumbnail = (Math.abs(hash) % 5) + 1;
+
   return {
     slug,
     title: data.title ?? "Untitled",
     date: data.date ?? "",
     description: data.description ?? "",
     tags: data.tags ?? [],
+    category: data.category ?? "General",
     readingTime: stats.text,
     content,
+    thumbnail,
   };
+}
+
+export function getAllCategories(): string[] {
+  const posts = getAllPosts();
+  const catSet = new Set<string>();
+  posts.forEach((post) => catSet.add(post.category));
+  return Array.from(catSet).sort();
 }
 
 export function getAllTags(): string[] {

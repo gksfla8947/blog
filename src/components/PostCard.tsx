@@ -2,31 +2,61 @@ import Link from "next/link";
 import { format } from "date-fns";
 import type { Post } from "@/lib/posts";
 
+const THUMB_ICONS: Record<number, string> = {
+  1: "{ }",
+  2: "< />",
+  3: "[ ]",
+  4: "# _",
+  5: ">> _",
+};
+
 export default function PostCard({ post }: { post: Post }) {
   return (
-    <article className="group">
-      <Link href={`/posts/${post.slug}`} className="block py-6">
-        <div className="flex flex-col gap-2">
-          <h2 className="text-xl font-semibold group-hover:text-[var(--accent)] transition-colors">
-            {post.title}
-          </h2>
-          <p className="text-[var(--muted)] text-sm line-clamp-2">{post.description}</p>
-          <div className="flex items-center gap-3 text-xs text-[var(--muted)]">
-            <time dateTime={post.date}>{format(new Date(post.date), "yyyy.MM.dd")}</time>
-            <span>{post.readingTime}</span>
+    <article className="post-card group">
+      <Link href={`/posts/${post.slug}`} className="flex flex-col sm:flex-row">
+        {/* Thumbnail */}
+        <div
+          className="thumb-gradient w-full sm:w-48 h-36 sm:h-auto flex items-center justify-center shrink-0"
+          style={{ background: `var(--thumb-${post.thumbnail})` }}
+        >
+          <span className="text-white/90 text-2xl font-mono font-bold select-none">
+            {THUMB_ICONS[post.thumbnail] ?? "{ }"}
+          </span>
+        </div>
+
+        {/* Content */}
+        <div className="flex flex-col justify-between p-5 flex-1 min-w-0">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider rounded bg-[var(--accent-glow)] text-[var(--accent)]">
+                {post.category}
+              </span>
+            </div>
+            <h2 className="text-lg font-bold leading-snug mb-1.5 group-hover:text-[var(--accent)] transition-colors line-clamp-1">
+              {post.title}
+            </h2>
+            <p className="text-sm text-[var(--muted)] line-clamp-2 leading-relaxed">
+              {post.description}
+            </p>
           </div>
-          {post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mt-1">
-              {post.tags.map((tag) => (
+
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-[var(--card-border)]">
+            <div className="flex flex-wrap gap-1.5">
+              {post.tags.slice(0, 3).map((tag) => (
                 <span
                   key={tag}
-                  className="px-2 py-0.5 text-xs rounded-md bg-[var(--tag-bg)] text-[var(--tag-text)]"
+                  className="px-2 py-0.5 text-[11px] font-medium rounded-full border border-[var(--tag-border)] bg-[var(--tag-bg)] text-[var(--tag-text)]"
                 >
                   {tag}
                 </span>
               ))}
             </div>
-          )}
+            <div className="flex items-center gap-2 text-xs text-[var(--muted)] shrink-0 ml-3">
+              <time dateTime={post.date}>{format(new Date(post.date), "yyyy.MM.dd")}</time>
+              <span className="w-1 h-1 rounded-full bg-[var(--muted)] opacity-40" />
+              <span>{post.readingTime}</span>
+            </div>
+          </div>
         </div>
       </Link>
     </article>

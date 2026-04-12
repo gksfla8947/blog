@@ -18,10 +18,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "My CS Academia",
-    template: "%s | My CS Academia",
+    default: "DEVS VLTRA",
+    template: "%s | DEVS VLTRA",
   },
-  description: "개발 관련 정리 블로그 by gksfla8947",
+  description: "더 너머의 개발자 — Beyond the Limit by gksfla8947",
 };
 
 export default function RootLayout({

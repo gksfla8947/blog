@@ -5,7 +5,16 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import rehypeHighlight from "rehype-highlight";
+import Link from "next/link";
 import type { Metadata } from "next";
+
+const THUMB_ICONS: Record<number, string> = {
+  1: "{ }",
+  2: "< />",
+  3: "[ ]",
+  4: "# _",
+  5: ">> _",
+};
 
 type Params = Promise<{ slug: string }>;
 
@@ -38,39 +47,78 @@ export default async function PostPage({ params }: { params: Params }) {
   }
 
   return (
-    <article className="max-w-3xl mx-auto px-6 py-12">
-      <header className="mb-10">
-        <h1 className="text-3xl font-bold tracking-tight mb-3">{post.title}</h1>
-        <p className="text-[var(--muted)] mb-4">{post.description}</p>
-        <div className="flex items-center gap-3 text-sm text-[var(--muted)]">
-          <time dateTime={post.date}>{format(new Date(post.date), "yyyy.MM.dd")}</time>
-          <span>&middot;</span>
-          <span>{post.readingTime}</span>
-        </div>
-        {post.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-3">
-            {post.tags.map((tag) => (
-              <span
-                key={tag}
-                className="px-2 py-0.5 text-xs rounded-md bg-[var(--tag-bg)] text-[var(--tag-text)]"
-              >
-                {tag}
-              </span>
-            ))}
+    <article className="animate-in">
+      {/* Hero Banner */}
+      <header className="relative overflow-hidden">
+        <div
+          className="absolute inset-0 opacity-90"
+          style={{ background: `var(--thumb-${post.thumbnail})` }}
+        />
+        <div className="absolute inset-0 bg-black/30" />
+        <div className="relative max-w-5xl mx-auto px-6 py-16 md:py-20 text-white">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-sm text-white/70 hover:text-white transition-colors mb-6"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5" /><path d="m12 19-7-7 7-7" />
+            </svg>
+            목록으로
+          </Link>
+
+          <div className="flex items-center gap-2 mb-4">
+            <span className="px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider rounded bg-white/20 backdrop-blur-sm">
+              {post.category}
+            </span>
           </div>
-        )}
+
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-4 leading-tight max-w-3xl">
+            {post.title}
+          </h1>
+          <p className="text-white/80 text-lg max-w-2xl mb-6">{post.description}</p>
+
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 text-sm text-white/70">
+              <img src="/profile.svg" alt="profile" className="w-8 h-8 rounded-full object-cover ring-2 ring-white/20" />
+              <div>
+                <div className="text-white/90 font-medium text-sm">gksfla8947</div>
+                <div className="flex items-center gap-2 text-xs text-white/60">
+                  <time dateTime={post.date}>{format(new Date(post.date), "yyyy.MM.dd")}</time>
+                  <span className="w-1 h-1 rounded-full bg-white/40" />
+                  <span>{post.readingTime}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {post.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-5">
+              {post.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="px-2.5 py-0.5 text-xs font-medium rounded-full bg-white/15 backdrop-blur-sm border border-white/20"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
       </header>
 
-      <div className="prose prose-neutral dark:prose-invert max-w-none">
-        <MDXRemote
-          source={post.content}
-          options={{
-            mdxOptions: {
-              remarkPlugins: [remarkGfm],
-              rehypePlugins: [rehypeSlug, rehypeHighlight],
-            },
-          }}
-        />
+      {/* Post Content */}
+      <div className="max-w-3xl mx-auto px-6 py-12">
+        <div className="prose prose-neutral dark:prose-invert max-w-none">
+          <MDXRemote
+            source={post.content}
+            options={{
+              mdxOptions: {
+                remarkPlugins: [remarkGfm],
+                rehypePlugins: [rehypeSlug, rehypeHighlight],
+              },
+            }}
+          />
+        </div>
       </div>
     </article>
   );
