@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import PostCard from "./PostCard";
 import Sidebar from "./Sidebar";
 import type { Post } from "@/lib/posts";
@@ -13,16 +13,22 @@ interface PostListProps {
 export default function PostList({ posts, categories }: PostListProps) {
   const [activeCategory, setActiveCategory] = useState("All");
   const isFirstRender = useRef(true);
+  const listRef = useRef<HTMLDivElement>(null);
 
   const filtered =
     activeCategory === "All"
       ? posts
       : posts.filter((p) => p.category === activeCategory);
 
-  const handleCategoryChange = (cat: string) => {
+  const handleCategoryChange = useCallback((cat: string) => {
     isFirstRender.current = false;
+    // 카테고리 변경 시 리스트 영역 상단으로 부드럽게 스크롤
+    if (listRef.current) {
+      const top = listRef.current.getBoundingClientRect().top + window.scrollY - 96;
+      window.scrollTo({ top: Math.max(0, top), behavior: "instant" });
+    }
     setActiveCategory(cat);
-  };
+  }, []);
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10">
@@ -40,7 +46,7 @@ export default function PostList({ posts, categories }: PostListProps) {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0" ref={listRef}>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-sm font-semibold uppercase tracking-widest text-[var(--muted)]">
               {activeCategory === "All" ? "Recent Posts" : activeCategory}
@@ -63,7 +69,6 @@ export default function PostList({ posts, categories }: PostListProps) {
             </div>
           ) : (
             <div
-              key={activeCategory}
               className={`flex flex-col gap-4 ${isFirstRender.current ? "stagger-in" : "animate-fade"}`}
             >
               {filtered.map((post) => (
