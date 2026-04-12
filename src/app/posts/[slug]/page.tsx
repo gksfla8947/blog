@@ -23,7 +23,7 @@ export async function generateStaticParams() {
   return posts.map((post) => ({ slug: post.slug }));
 }
 
-const BASE_URL = "https://my-cs-academia.vercel.app";
+const BASE_URL = "https://devs-vltra.vercel.app";
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug } = await params;
