@@ -38,6 +38,9 @@ export const metadata: Metadata = {
     title: "DEVS VLTRA",
     description: "더 너머의 개발자 — Beyond the Limit. 개발 관련 정리 블로그 by gksfla8947",
   },
+  verification: {
+    google: "obgsY-znaB3CCPlpQiJRyuwGe0U8eYTPm8lCa72gTKI",
+  },
   robots: {
     index: true,
     follow: true,
