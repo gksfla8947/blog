@@ -1,9 +1,8 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
   --color-background: var(--background);
@@ -12,15 +11,95 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --background: #fafafa;
+  --foreground: #171717;
+  --card: #ffffff;
+  --card-border: #e5e5e5;
+  --muted: #737373;
+  --accent: #2563eb;
+  --accent-light: #3b82f6;
+  --code-bg: #f5f5f5;
+  --tag-bg: #e5e7eb;
+  --tag-text: #374151;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --card: #171717;
+  --card-border: #262626;
+  --muted: #a3a3a3;
+  --accent: #3b82f6;
+  --accent-light: #60a5fa;
+  --code-bg: #1e1e1e;
+  --tag-bg: #1f2937;
+  --tag-text: #d1d5db;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* MDX prose styling */
+.prose {
+  --tw-prose-body: var(--foreground);
+  --tw-prose-headings: var(--foreground);
+  --tw-prose-links: var(--accent);
+  --tw-prose-code: var(--foreground);
+  --tw-prose-pre-bg: var(--code-bg);
+  --tw-prose-pre-code: var(--foreground);
+  --tw-prose-quotes: var(--muted);
+  --tw-prose-quote-borders: var(--accent);
+  --tw-prose-counters: var(--muted);
+  --tw-prose-bullets: var(--muted);
+  --tw-prose-hr: var(--card-border);
+  --tw-prose-th-borders: var(--card-border);
+  --tw-prose-td-borders: var(--card-border);
+}
+
+.prose pre {
+  border: 1px solid var(--card-border);
+  border-radius: 0.75rem;
+}
+
+.prose code:not(pre code) {
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 0.375rem;
+  font-size: 0.875em;
+  font-weight: 500;
+}
+
+.prose code:not(pre code)::before,
+.prose code:not(pre code)::after {
+  content: none;
+}
+
+.prose img {
+  border-radius: 0.75rem;
+  border: 1px solid var(--card-border);
+}
+
+.prose a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.15s ease;
+}
+
+.prose a:hover {
+  color: var(--accent-light);
+}
+
+.prose blockquote {
+  border-left-width: 3px;
+  font-style: normal;
+}
+
+/* Highlight.js overrides for dark mode */
+.dark .hljs {
+  background: var(--code-bg) !important;
 }
