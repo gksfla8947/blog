@@ -1,0 +1,367 @@
+---
+title: "Docker"
+date: "2025-01-20"
+description: "Docker에 대한 기본 개념과 활용방법에 대해 정리한 문서"
+category: "인프라"
+tags: ["Docker", "컨테이너", "DevOps", "인프라"]
+---
+
+# 잡지식
+## Volume Backup
+- backup
+```shell
+docker run --rm \
+-v my_volume:/volume \
+-v $(pwd):/backup \
+ubuntu tar cvf /backup/backup.tar /volume
+
+또는
+
+# 데이터 저장 경로 확인
+docker volume inspect my_volume
+# 경로 확인 후 백업
+tar cvf backup.tar -C /var/lib/docker/volumes/my_volume/_data .
+```
+- restore
+```shell
+docker run --rm \
+-v my_volume:/volume \
+-v $(pwd):/backup \
+ubuntu tar xvf /backup/backup.tar -C /volume
+
+또는
+
+tar xvf backup.tar -C /var/lib/docker/volumes/my_volume/_data
+```
+# **개요**
+Docker에 대한 기본 개념과 활용방법에 대해 정리한 문서
+### **참고**
+- [Manuals](https://docs.docker.com/manuals/)
+# **리눅스 Container란**
+애플리케이션 또는 임베디드 시스템 내에서 사용되는 소프트웨어 모듈, 라이브러리 등 개발을 하기 위해서는 필수적으로 따라오는 환경 세팅이 필요하다.
+그 환경에는
+- OS
+- CPU 아키텍처
+- 특정 필요 라이브러리
+- 기타 등등
+
+많은 요소들이 있다.
+리눅스 컨테이너는 시스템에 있는 프로그램이 실행되는 환경을 독립적으로 격리시켜 다른 환경에 간섭받지 않을 수 있다.
+Docker는 이러한 Linux의 Container 기술을 활용하여 좀 더 활용성있게 사용할 수 있도록 나온 기술이다
+# **VM vs Container**
+
+![VM vs Container](/images/notion/docker/image-1.png)
+
+간단히 설명하자면 VM과 Container의 가장 큰 차이점은 OS Kernal 단까지 가상화를 하는가 여부이다.
+- VM : Virtual Box, KVM, VMware와 같은 Hypervisor라 불리는 소프트웨어를 통해 Host OS 위에 Guest OS까지 각각 올려 OS전체를 가상화한다
+- Container : Host OS의 Kernel을 공유하되, 각각 프로세스가 사용하는 파일시스템 영역이나 리소스 자원을 가상화한다.
+
+VM은 Kernel까지 새롭게 올리기 때문에 상대적으로 느리고, Container는 Host OS의 kernel을 공유하기 때문에 빠르지만, 아키텍처는 Host OS에 종속적이다.
+# **왜 Docker를 사용하는가**
+개발자마다 똑같은 소프트웨어를 각기 다른 로컬에서 작업하기는 쉽지 않다. 각자 설치된 OS, CPU, 라이브러리, 프레임워크, 그리고 버전 등 환경이 제각각이기 때문에 이를 통일하도록 하는 것만으로도 상당한 피로와 시간이 든다.
+→ Docker는 이러한 환경을 Image로 저장하여 개발에 필요한 환경을 신속하고 일관성있게 배포할 수 있다.
+또한 Image를 통해 만들어진 컨테이너는 어느 환경에서나 실행 가능하다 → **Build Once, Run Anywhere**
+# **Docker Architecture**
+
+![Docker Architecture](/images/notion/docker/image-2.png)
+
+기본적으로 Docker는 Client - Server 구조의 아키텍처를 채택하고 있다.
+Client를 통해 Docker Server(Daemon)에 이미지 생성, 컨테이너 생성 요청을 하며 실행, 관리 역시 Server에서 이루어진다.
+## **Docker Daemon**
+Docker Client으로부터 요청을 처리하고 이미지, 컨테이너, 네트워크, Volume과 같은 Docker Object들을 실행, 관리를 하는 주체이다.
+## **Docker Client**
+Docker Daemon으로 CLI을 통해 요청을 하는 주체이다. 여러 개의 Docker Daemon과 통신이 가능하다
+## **Docker Desktop**
+Docker에서 배포하는 유료 GUI Software. 유료이다.
+- Docker Desktop은 그 자체로 Docker Daemon, Docker Client, Docker Compose 등을 포함하고 있다
+
+> **Windows에서 Docker**
+> Container기술은 일반적으로 Linux고유 기술이기 때문에, Window에서 Docker Host가 되기 위해서는 WSL2를 통해 Docker Daemon 설치가 이루어진다.
+
+## **Docker Registries**
+Docker Image를 저장하는 저장소. 기본적으로 Docker Hub를 Default Registry로 지정하고 있으며, 하루에 Pull, Push할 수 있는 이미지 수가 제한되어 있다.
+또한 자체적으로 Registry를 구축하거나 또 다른 Registry를 바라볼 수 있는데 분류는 아래와 같다
+- Official Repository : Docker에서 지원하는 공식 저장소
+	- [Docker Hub Container Image Library | App Containerization](https://hub.docker.com/)
+- Private Registry : 내부에서 직접 Registry를 구축하여 이미지를 저장할 수 있다.
+## **Containers**
+Docker Image가 프로세스화되어 실행 중인 인스턴스이다.
+컨테이너 내 환경은 기본적으로 Host Docker 내의 다른 Container와 독립되어있으며, Host PC 또는 다른 컨테이너와 네트워크 설정을 통해 통신이 가능하다
+컨테이너는 이미지에서 정의한 환경이 프로세스로 실행된 형태이며, 그 외 컨테이너 실행 시 지정한 여러 Configuration Option을 통해 정의된다.
+### **예시 - ubuntu container 실행**
+```
+docker run --it ubuntu:latest /bin/bash
+```
+- `docker run` : container를 실행
+- `i` : Container 실행 시 사용자 입력을 받을 수 있는 Interactive Shell 사용
+- `t` : Container 실행 시 가상 터미널 사용하여 출력을 표시(보통 `it`형태로 같이 쓰임)
+- `ubuntu:latest`: Container로 실행될 Image:Tag
+- `/bin/bash` Container 실행 직후 실행될 명령어
+## **Images**
+Docker Container를 생성하기 위한 읽기 전용 템플릿이다. 이미지는 다른 이미지를 통해 빌드 될 수 있다.
+- 만약 Node 환경이 설치된 Ubuntu 이미지 파일을 생성하고 싶다면 Ubuntu 이미지를 기반으로 Node가 설치된 또 다른 이미지를 생성할 수 있다.
+- Dockerfile은 이러한 이미지를 만들기 위한 Docker만의 스크립트 파일 형식이다
+# **기본적인 명령어**
+## **Container**
+### **Run Container**
+```
+docker run [...options] <image-name>
+```
+기본적으로 run명령을 통해 Image를 Container로 실행시킬 수 있다.
+- `-name` Option 지정 없이 Container 실행하면 임의로 Container이름이 부여된다
+
+**자주 쓰이는 Option 몇 가지**
+- `-name` : 실행될 컨테이너의 이름을 지정
+- `d, --detach` : 컨테이너를 백그라운드에서 실행
+- `v, --volume` : Mount할 Host File System의 Path와 컨테이너 내에 마운트될 Path를 ':'로 이어 지정
+	- ex) `v /home/test_volume:/home:/test`
+- `u, --user` : 컨테이너에서 명령어 실행할 User 지정
+- `it` : Interactive Shell + tty → 가상 터미널과 Input을 받을 수 있는 Interactive Shell을 함께 제공하여 컨테이너 내부를 조작하고 출력을 확인할 수 있게함
+- `w, --workdir` : 컨테이너 내부의 working directory path 지정
+- `e, --env` : 컨테이너 내부의 환경 변수 지정
+- `-restart` : 컨테이너를 지속적으로 running상태 유지가 필요하다면 `-restart=always`옵션으로 항상 꺼져도 다시 시작될 수 있게 가능하다
+- `p, --publish` : 호스트의 특정 포트에 접근하면, 컨테이너 내부의 지정된 포트로 트래픽이 전달된다
+	- `docker run -p 8080:80 nginx`와 같이 Host PC의 8080포트로 접근 시 container 내부의 80포트로 연결된다
+- `-rm` : container에서 지정한 명령의 수행이 끝나면 자동으로 컨테이너를 삭제한다
+### **Stop Container**
+```
+docker stop <container-name>
+```
+### **Remove Container**
+```
+docker rm <container-name>
+```
+- `f, --force` 지정 시 실행 중인 Container 강제 삭제가 가능하다
+## **Image**
+### **Image Build**
+```
+docker build [...options] -t <image-name> .
+```
+Dockerfile을 가지고 이미지를 빌드하는 명령
+- `t` : 빌드될 이미지의 이름 지정
+- `.` : Build Context Path 지정 (`.`은 현재 디렉터리를 의미)
+
+> **Build Context**
+> 이미지 build시 Build Context를 전부 압축하여 이미지화 시키는데, 이 때 Build Context란 Build 시 지정한 특정 디렉터리 Path이다
+> 따로 파일이름을 지정하지 않는 이상 Build Context내에 있는 `Dockerfile`이란 파일 이름을 찾아 이를 이미지 빌드 스크립트로 활용한다. (만약 `Dockerfile`이름이 아닌 다른 이름이라면 `-f`로 path 별도 지정이 가능하다)
+> build context내에 있는 모든 파일과 디렉터리는 이미지 빌드 시 전송되기 때문에 불필요한 파일이나 디렉터리가 없게 끔해야 한다.
+> 부득히 하게 불필요한 파일이 Build Context내에 존재하는 것을 막기 위해 `.dockerignore`파일을 활용할 수 있다
+
+![Build Context](/images/notion/docker/image-3.png)
+
+> 위 사진에서 Dockerfile이 있는 directory를 Build Context로 지정 시 모든 파일이 이미지 빌드 시 전송되게 된다.
+> - node_modules와 같은 폴더는 이미지 빌드에 필요가 없기 때문에 제외하고, 이미지 빌드 시 npm install 명령으로 이미지 내에서 생성되도록 하는 것이 좋다
+
+### **Remove Image**
+```
+docker rmi <image-name or image-hash>
+```
+# **Volume**
+기본적으로 컨테이너환경은 이미지에서 정의한 대로 독립적이지만, 매번 실행 시 마다 컨테이너 내에서 생성된 데이터들은 컨테이너 삭제와 동시에 모두 날아간다. 만약 컨테이너 실행과정에서 생기는 데이터들을 유지하고 싶다면 Volume을 지정하여 Host PC에 데이터를 저장하여 컨테이너 재 생성 시에 이를 복구할 수 있다.
+
+![Volume Mount](/images/notion/docker/image-4.png)
+
+두 가지 Mount 방식이 있다
+- Bind Mount : Host PC의 특정 Path를 마운트 `docker run \ -v /home/user/some/path:/app \ nginx:latest`
+- Volume Mount : /var/lib/docker/volumes 위치 아래에 named volume space를 생성하여 관리
+	- `docker volume ls, rm, create`등 명령을 통해 관리가 가능하다`docker run \ -v my_volume:/app \ nginx:latest`
+# **Dockerfile**
+## **키워드**
+### **FROM**
+컨테이너 이미지를 빌드할 때 기반이 되는 베이스 이미지를 지정
+```
+FROM <image>:<tag>
+```
+### **RUN**
+지정된 명령을 실행하여 이미지 생성 과정에서 필요한 설정 및 패키지를 설치
+```
+RUN <command>
+RUN apt-get update && apt-get install -y curl
+```
+### **COPY**
+호스트의 파일 또는 디렉토리를 이미지의 파일 시스템으로 복사
+```
+COPY <source> <destination>
+```
+- source 파일을 Docker Image 파일 내 Working Directory 위치에 복사
+### **ADD**
+```
+ADD <source> <destination>
+```
+COPY와 유사하게 파일을 복사하지만, URL을 통한 파일 다운로드, tar.gz 압축 해제를 지원
+```
+ADD https://example.com/resource.tar.gz /app/
+```
+- 링크를 통해 파일을 다운로드 받고 압축해제까지 /app 위치에 둔다
+### **WORKDIR**
+이후 명령(`RUN`, `CMD` 등)이 실행될 작업 디렉토리를 설정
+```
+WORKDIR /path/to/dir
+```
+
+> **WORKDIR이 있는 이유**
+> 위에서 언급했다싶이 Line By Line으로 Layer가 빌드되기 때문에 단순 `cd`명령만으로는 working directory를 변경할 수 없다.
+> 따라서 후속 작업의 Working Directory를 변경하기 위해서는 WORKDIR 키워드를 사용해 변경해준다
+
+### **CMD**
+컨테이너가 실행될 때 실행할 기본 명령을 지정. CMD명령어는 **대체**가 가능하다
+Run Container 시 마지막에 실행 명령어를 추가 인자값으로 주면, 해당 실행명령어는 CMD명령어를 덮어쓴다
+```
+CMD ["executable", "arg1", "arg2"]
+```
+### **ENTRYPOINT**
+컨테이너가 실행될 때 실행할 기본 명령을 설정하며, CMD와 달리 고정적으로 동작
+```
+ENTRYPOINT ["executable", "arg1", "arg2"]
+```
+### **ENV**
+Container 내에서 사용될 환경변수를 설정
+```
+ENV <key>=<value>
+```
+### **EXPOSE**
+컨테이너에서 사용할 네트워크 포트를 지정
+```
+EXPOSE <port>
+```
+### **VOLUME**
+지속적으로 저장할 Volume의 Path를 지정
+```
+VOLUME ["/data"]
+```
+### **ARG**
+빌드 시 전달할 인자를 설정. `docker build --build-arg`로 값 설정 가능.
+```
+ARG <name>=<default_value>
+```
+### **USER**
+명령어 실행 시 사용할 사용자 계정을 지정
+```
+USER <username>
+```
+## **명령어의 순서**
+참고 : [[Practice] Docker Advanced | MLOps for ALL](https://mlops-for-all.github.io/docs/prerequisites/docker/advanced/)
+
+Dockerfile 을 활용하여 도커 이미지를 만들 때는 명령어의 순서가 중요하다
+도커 이미지는 여러 개의 Read-Only Layer 로 구성되어있고, 이미지를 빌드할 때 이미 존재하는 레이어는 캐시되어 재사용되기 때문에, 이를 생각해서 Dockerfile 을 구성한다면 빌드 시간을 줄일 수 있다
+
+아래와 같은 Dockerfile이 있다고 가정하자
+```
+# Layer 1
+FROM ubuntu:latest
+# Layer 2
+RUN apt-get update && apt-get install python3 pip3 -y
+# Layer 3
+RUN pip3 install -U pip && pip3 install torch
+# Layer 4
+COPY src/ src/
+# Layer 5
+CMD python src/app.py
+```
+Dockerfile에서 **RUN, COPY, ADD** 명령은 각각 하나의 layer로 취급된다
+
+위 스크립트를 그림으로 표현하면 아래와 같다
+
+![Docker Image Layers](/images/notion/docker/image-5.png)
+
+기본적으로 이미지를 빌드 할 때 각 스크립트 순서대로 레이어가 쌓이게 되며, container 실행 이후 파일이 생성되고 삭제되고 명령어가 실행되는 부분은 Container Layer에 속하며, Container 삭제 시 같이 삭제된다.(휘발성)
+
+가장 중요한 것은 **하단의 레이어가 변경되면, 상단의 레이어 모두 다시 빌드해야 한다**
+
+따라서 자주 변경되는 부분은 Script상 하단에 배치하고 Base Image를 가져오고, 기본 패키지를 설치하는 등의 스크립트는 상단에 배치하는게 좋다
+# **네트워크**
+Docker 서비스 실행 시 `docker0`이라는 가상의 네트워크 인터페이스가 생성된다
+
+![docker0 네트워크](/images/notion/docker/image-6.png)
+
+Docker Container는 docker0 bridge 네트워크와 연결된 veth 가상 이더넷 인터페이스를 통해 외부와 연결된다.
+
+![Docker 네트워크 구조](/images/notion/docker/image-7.png)
+
+Docker Container 생성 시 네트워크 드라이버를 설정하여 Host의 네트워크를 공유받을 수도, 아니면 Bridge네트워크를 통해 다른 컨테이너와 통신할 수 있다
+## **Bridge**
+`docker network create --driver bridge mybridge` 명령어를 통해 사용자 정의 브릿지 네트워크를 생성한 뒤 Container 실행 시 사용할 브릿지 네트워크를 지정할 수 있다
+- 기본 bridge네트워크인 docker0과 마찬가지로 생성한 네트워크를 사용하는 컨테이너들 간 통신이 가능하다
+## **Host**
+- `-net=host`옵션 지정을 통해 컨테이너 실행 시 Host Network를 그대로 Container 내부에서 사용할 수 있다.
+
+당연히 별도의 Port지정도 필요없이 바로 Host PC로 들어오는 요청이 Container 내부로 들어오게 된다
+## **None**
+네트워크를 사용하지 않음. 컨테이너 내부에는 오직 loopback 네트워크만 존재하게된다
+## **Container Network**
+다른 Container에서 사용중인 Network 환경을 공유받아 사용한다. 즉 다른 컨테이너로 오는 요청이 똑같이 내 컨테이너로 오게된다.
+# **Docker Compose**
+
+![Docker Compose](/images/notion/docker/image-8.png)
+
+서비스 또는 애플리케이션을 개발하면, 단 하나의 인스턴스로 구성되는 경우는 거의 없다.
+Web Application의 예시로 들어보자. 아래와 같은 구성요소가 있다 치자.
+- Frontend
+- Backend
+- DB
+
+각 구성요소들은 각각 컨테이너로서 구동되며, 하나만으로는 서비스를 구성할 수 없고 여러 개의 컨테이너가 유기적으로 관리가 필요하다.
+Docker Compose는 이러한 서비스를 구성하는 Container들을 집합적으로 관리할 수 있도록 나온 도구이다
+## **작성법**
+yaml 포맷을 사용한다.
+1. 각 서비스를 단일 컨테이너로 띄울 때 어떤 옵션과 어떤 이미지를 사용하는지 파악
+2. docker run 명령을 통해 실행하던 것을 compose 파일에 옮긴다
+### **서비스 정의**
+```yaml
+services:
+  service1:
+    ...
+  service2:
+    ...
+```
+services: 하위에 프로젝트를 구성하는 서비스(컴포넌트)를 정의한다 (각 서비스는 컨테이너 단위이다)
+### **서비스 설정**
+docker compose 옵션은 하기 명시된 것보다 더 다양하지만, 대표적으로 쓰이는 몇 가지를 정리하였다
+
+**최상위**
+
+최상위 레벨에서 사용할 수 있는 키워드
+
+| 키워드 | 설명 |
+| --- | --- |
+| `services` | 실행할 컨테이너 정의 (서비스 단위) |
+| `volumes` | 볼륨 정의 |
+| `networks` | 네트워크 정의 |
+| `configs` | Config 오브젝트 정의 |
+| `secrets` | 비밀 데이터를 보관하여 컨테이너에 전달 |
+| `name` | 프로젝트의 이름을 명시적으로 지정 |
+
+**Build 설정**
+
+| 키워드 | 설명 |
+| --- | --- |
+| `context` | Build Context |
+| `dockerfile` | 사용할 Dockerfile 명칭 지정 |
+| `args` | Dockerfile에 전달할 빌드 인수 |
+
+**Service 설정**
+
+| 키워드 | 설명 |
+| --- | --- |
+| `image` | 사용할 도커 이미지 |
+| `build` | Dockerfile을 사용하여 이미지를 빌드 |
+| `container_name` | 컨테이너의 고유한 이름 지정 |
+| `restart` | 컨테이너의 재시작 정책 (`always`, `on-failure`, `no`) |
+| `ports` | 호스트와 컨테이너 간 포트 매핑 (예: `80:80`) |
+| `volumes` | 호스트-컨테이너 간 파일 공유 설정 |
+| `environment` | 환경 변수 설정 |
+| `env_file` | 환경 변수 파일 지정 (예: `.env`) |
+| `command` | 컨테이너 시작 시 실행할 명령어. |
+| `entrypoint` | 컨테이너의 엔트리포인트 설정. |
+| `depends_on` | 의존 관계가 있는 서비스 지정 (해당 서비스가 실행된 다음 서비스가 실행) |
+| `networks` | 컨테이너가 연결될 네트워크 지정. |
+
+# **Docker out of Docker (DooD)**
+Docker를 통해 실행한 Container내부에서 Docker Daemon과 통신하여 CLI 요청을 할 수 있게 하는 것
+Container내부에서 사용하는 Docker Socket파일 위치에 Host Daemon의 Docker Socket을 마운트하여
+
+![Docker out of Docker](/images/notion/docker/image-9.png)
+
+- jenkins를 Container로 올리면서 Jenkins Container내에서 Docker Daemon을 사용하고자 할 때 활용할 수 있다.
+
+	![Jenkins DooD](/images/notion/docker/image-10.png)
