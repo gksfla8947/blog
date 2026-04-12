@@ -23,6 +23,8 @@ export async function generateStaticParams() {
   return posts.map((post) => ({ slug: post.slug }));
 }
 
+const BASE_URL = "https://blog-seven-zeta-42.vercel.app";
+
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug } = await params;
   try {
@@ -30,6 +32,19 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     return {
       title: post.title,
       description: post.description,
+      openGraph: {
+        title: post.title,
+        description: post.description,
+        url: `${BASE_URL}/posts/${slug}`,
+        type: "article",
+        publishedTime: post.date,
+        tags: post.tags,
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: post.title,
+        description: post.description,
+      },
     };
   } catch {
     return { title: "Not Found" };

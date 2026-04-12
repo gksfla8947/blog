@@ -16,12 +16,39 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const BASE_URL = "https://blog-seven-zeta-42.vercel.app";
+
 export const metadata: Metadata = {
   title: {
     default: "DEVS VLTRA",
     template: "%s | DEVS VLTRA",
   },
-  description: "더 너머의 개발자 — Beyond the Limit by gksfla8947",
+  description: "더 너머의 개발자 — Beyond the Limit. 개발 관련 정리 블로그 by gksfla8947",
+  metadataBase: new URL(BASE_URL),
+  openGraph: {
+    title: "DEVS VLTRA",
+    description: "더 너머의 개발자 — Beyond the Limit. 개발 관련 정리 블로그 by gksfla8947",
+    url: BASE_URL,
+    siteName: "DEVS VLTRA",
+    locale: "ko_KR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "DEVS VLTRA",
+    description: "더 너머의 개발자 — Beyond the Limit. 개발 관련 정리 블로그 by gksfla8947",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
+  alternates: {
+    canonical: BASE_URL,
+  },
 };
 
 export default function RootLayout({
