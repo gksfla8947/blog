@@ -15,6 +15,7 @@ export interface Post {
   readingTime: string;
   content: string;
   thumbnail: number;
+  coverImage: string | null;
 }
 
 export function getAllPosts(): Post[] {
@@ -43,6 +44,10 @@ export function getPostBySlug(slug: string): Post {
   }
   const thumbnail = (Math.abs(hash) % 5) + 1;
 
+  // Extract first image from content as cover image
+  const imgMatch = content.match(/!\[.*?\]\((.*?)\)/);
+  const coverImage = imgMatch ? imgMatch[1] : null;
+
   return {
     slug,
     title: data.title ?? "Untitled",
@@ -53,6 +58,7 @@ export function getPostBySlug(slug: string): Post {
     readingTime: stats.text,
     content,
     thumbnail,
+    coverImage,
   };
 }
 

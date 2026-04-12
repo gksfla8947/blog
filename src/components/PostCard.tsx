@@ -16,12 +16,20 @@ export default function PostCard({ post }: { post: Post }) {
       <Link href={`/posts/${post.slug}`} className="flex flex-col sm:flex-row">
         {/* Thumbnail */}
         <div
-          className="thumb-gradient w-full sm:w-48 h-36 sm:h-auto flex items-center justify-center shrink-0"
-          style={{ background: `var(--thumb-${post.thumbnail})` }}
+          className="thumb-gradient w-full sm:w-48 h-36 sm:h-auto flex items-center justify-center shrink-0 overflow-hidden"
+          style={post.coverImage ? undefined : { background: `var(--thumb-${post.thumbnail})` }}
         >
-          <span className="text-white/90 text-2xl font-mono font-bold select-none">
-            {THUMB_ICONS[post.thumbnail] ?? "{ }"}
-          </span>
+          {post.coverImage ? (
+            <img
+              src={post.coverImage}
+              alt={post.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span className="text-white/90 text-2xl font-mono font-bold select-none">
+              {THUMB_ICONS[post.thumbnail] ?? "{ }"}
+            </span>
+          )}
         </div>
 
         {/* Content */}
