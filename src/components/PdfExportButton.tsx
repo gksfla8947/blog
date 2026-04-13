@@ -63,8 +63,9 @@ export default function PdfExportButton({ slug }: PdfExportButtonProps) {
       font-size: 12px;
       color: #888;
     }
-    /* === Block spacing === */
-    .content .bn-block-outer { margin: 0.4em 0; }
+    /* === BlockNote structure === */
+    .content .bn-block-outer { margin: 0.15em 0; }
+    .content .bn-block-group { padding-left: 24px; margin: 0; }
 
     /* === Headings === */
     .content h1 { font-size: 24px; margin: 1.5em 0 0.5em; font-weight: 700; }
@@ -121,31 +122,33 @@ export default function PdfExportButton({ slug }: PdfExportButtonProps) {
 
     /* === BlockNote bullet list === */
     .content [data-content-type="bulletListItem"] {
-      display: flex;
-      align-items: flex-start;
-      gap: 6px;
-      padding-left: 8px;
+      display: list-item;
+      list-style-type: disc;
+      list-style-position: outside;
+      margin-left: 20px;
     }
-    .content [data-content-type="bulletListItem"]::before {
-      content: "\\2022";
-      font-weight: bold;
-      min-width: 14px;
-      margin-top: 0;
+    /* Depth 2 */
+    .content .bn-block-group [data-content-type="bulletListItem"] {
+      list-style-type: circle;
+    }
+    /* Depth 3+ */
+    .content .bn-block-group .bn-block-group [data-content-type="bulletListItem"] {
+      list-style-type: square;
     }
 
     /* === BlockNote numbered list === */
     .content [data-content-type="numberedListItem"] {
-      display: flex;
-      align-items: flex-start;
-      gap: 6px;
+      display: list-item;
+      list-style: none;
+      margin-left: 20px;
+      position: relative;
       padding-left: 8px;
-      counter-increment: bn-list;
     }
     .content [data-content-type="numberedListItem"]::before {
       content: attr(data-index) ".";
+      position: absolute;
+      left: -22px;
       font-weight: 600;
-      min-width: 20px;
-      margin-top: 0;
     }
 
     /* === Callout === */
