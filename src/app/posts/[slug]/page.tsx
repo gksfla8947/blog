@@ -3,6 +3,7 @@ import { getAllPosts, getPostBySlug } from "@/lib/posts";
 import { format } from "date-fns";
 import Link from "next/link";
 import type { Metadata } from "next";
+import CodeHighlight from "@/components/CodeHighlight";
 
 const THUMB_ICONS: Record<number, string> = {
   1: "{ }",
@@ -116,6 +117,7 @@ export default async function PostPage({ params }: { params: Params }) {
 
       {/* Post Content */}
       <div className="max-w-3xl mx-auto px-6 py-12">
+        <CodeHighlight />
         <div
           className="prose prose-neutral dark:prose-invert max-w-none"
           dangerouslySetInnerHTML={{ __html: post.content }}

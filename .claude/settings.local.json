@@ -52,7 +52,24 @@
       "Bash(file /Users/mac/Projects/blog/public/images/notion/docker/image-*.png)",
       "Bash(python3 -c ':*)",
       "Bash(python3)",
-      "Bash(bash /tmp/download_images.sh)"
+      "Bash(bash /tmp/download_images.sh)",
+      "WebFetch(domain:www.dev-bbak.site)",
+      "Bash(openssl rand:*)",
+      "Bash(npx drizzle-kit:*)",
+      "Bash(ls /Users/mac/Projects/blog/src/app/sitemap*)",
+      "Bash(ls /Users/mac/Projects/blog/src/components/*.tsx)",
+      "Bash(npx tsx:*)",
+      "Bash(npx dotenv:*)",
+      "Bash(node -e \"const m = require\\('@blocknote/react'\\); console.log\\(Object.keys\\(m\\).filter\\(k => k.includes\\('BlockNote'\\)\\).join\\(', '\\)\\)\")",
+      "Bash(curl -s http://localhost:3333)",
+      "Bash(kill %1)",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(npx vercel:*)",
+      "Bash(gh api:*)",
+      "Bash(xargs -I {} curl -s -H \"Authorization: token $\\(gh auth token\\)\" {})",
+      "Bash(python3 -m json.tool)",
+      "Bash(git rm:*)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d[0]['state'] if d else 'pending'\\)\")"
     ]
   }
 }
