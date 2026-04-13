@@ -286,6 +286,28 @@ body {
   margin-bottom: 0.25em;
 }
 
+/* BlockNote bullet list items */
+.prose [data-content-type="bulletListItem"] {
+  display: list-item;
+  list-style-type: disc;
+  margin-left: 1.5em;
+}
+
+.prose [data-content-type="bulletListItem"] [data-content-type="bulletListItem"] {
+  list-style-type: circle;
+}
+
+.prose [data-content-type="bulletListItem"] [data-content-type="bulletListItem"] [data-content-type="bulletListItem"] {
+  list-style-type: square;
+}
+
+/* BlockNote numbered list items */
+.prose [data-content-type="numberedListItem"] {
+  display: list-item;
+  list-style-type: decimal;
+  margin-left: 1.5em;
+}
+
 .prose code:not(pre code) {
   background: var(--code-bg);
   padding: 0.15em 0.4em;
