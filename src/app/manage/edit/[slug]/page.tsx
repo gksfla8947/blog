@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { updatePost } from "../../actions";
 import TagInput from "@/components/editor/TagInput";
+import CategoryInput from "@/components/editor/CategoryInput";
 import PublishModal from "@/components/editor/PublishModal";
 import type { PostEditorRef } from "@/components/editor/PostEditor";
 
@@ -48,6 +49,14 @@ export default function EditPostPage({
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [showPublish, setShowPublish] = useState(false);
+  const [existingCategories, setExistingCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetch("/api/manage/categories")
+      .then((r) => r.json())
+      .then((d) => setExistingCategories(d.categories ?? []))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     fetch(`/api/manage/posts/${slug}`)
@@ -182,16 +191,11 @@ export default function EditPostPage({
         </div>
 
         {/* Category */}
-        <div className="mb-8 flex items-center gap-3">
-          <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
-            카테고리
-          </span>
-          <input
-            type="text"
+        <div className="mb-8">
+          <CategoryInput
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            placeholder="DEV"
-            className="px-3 py-1.5 text-sm rounded-lg border border-gray-200 bg-gray-50 text-gray-700 outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
+            onChange={setCategory}
+            existingCategories={existingCategories}
           />
         </div>
 
