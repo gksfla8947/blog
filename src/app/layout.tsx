@@ -26,6 +26,10 @@ export const metadata: Metadata = {
   },
   description: "배운것들 정리합니다 — 개발 블로그 by 강건너물구경",
   metadataBase: new URL(BASE_URL),
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
   openGraph: {
     title: "DEVS VLTRA",
     description: "배운것들 정리합니다 — 개발 블로그 by 강건너물구경",
