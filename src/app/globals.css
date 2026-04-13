@@ -258,6 +258,22 @@ body {
   --tw-prose-td-borders: var(--card-border);
 }
 
+/* 줄 간격 및 문단 간격 조정 */
+.prose p {
+  line-height: 1.7;
+  margin-top: 0.75em;
+  margin-bottom: 0.75em;
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose :first-child {
+  margin-top: 0;
+}
+
 .prose pre {
   border: 1px solid var(--card-border);
   border-radius: 0.75rem;
