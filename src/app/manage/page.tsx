@@ -56,12 +56,20 @@ export default function ManagePage() {
             </Link>
             <h1 className="text-lg font-bold text-[var(--foreground)]">관리자</h1>
           </div>
-          <Link
-            href="/manage/new-post"
-            className="px-4 py-2 text-sm font-semibold rounded-lg bg-[var(--accent)] text-white hover:opacity-90 transition-opacity"
-          >
-            + 새 글 작성
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/manage/drafts"
+              className="px-4 py-2 text-sm font-medium rounded-lg border border-[var(--card-border)] text-[var(--muted)] hover:text-[var(--foreground)] hover:border-[var(--foreground)]/30 transition-colors"
+            >
+              임시글
+            </Link>
+            <Link
+              href="/manage/new-post"
+              className="px-4 py-2 text-sm font-semibold rounded-lg bg-[var(--accent)] text-white hover:opacity-90 transition-opacity"
+            >
+              + 새 글 작성
+            </Link>
+          </div>
         </div>
       </header>
 

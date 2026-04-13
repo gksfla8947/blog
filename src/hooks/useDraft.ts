@@ -1,86 +1,72 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback } from "react";
 
-export interface DraftData {
+export interface DraftItem {
+  id: string;
   title: string;
-  slug: string;
+  slug?: string;
   description: string;
   category: string;
   tags: string[];
   blocks: unknown[];
-  savedAt: number; // timestamp
+  savedAt: number;
 }
 
-const DEBOUNCE_MS = 2000; // 2초 뒤 자동 저장
+const STORAGE_KEY = "manage:drafts";
 
-function draftKey(id: string) {
-  return `draft:${id}`;
+// localStorage 헬퍼
+function readAll(): DraftItem[] {
+  if (typeof window === "undefined") return [];
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]");
+  } catch {
+    return [];
+  }
 }
 
-export function useDraft(id: string) {
-  const [savedAt, setSavedAt] = useState<Date | null>(null);
-  const [hasDraft, setHasDraft] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+function writeAll(drafts: DraftItem[]) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(drafts));
+}
 
-  // 마운트 시 저장된 임시본 확인
-  useEffect(() => {
-    const raw = localStorage.getItem(draftKey(id));
-    if (raw) {
-      try {
-        const draft: DraftData = JSON.parse(raw);
-        setSavedAt(new Date(draft.savedAt));
-        setHasDraft(true);
-      } catch {
-        localStorage.removeItem(draftKey(id));
-      }
+// 전역 유틸 (컴포넌트 밖에서도 사용 가능)
+export const draftStorage = {
+  list: (): DraftItem[] => readAll().sort((a, b) => b.savedAt - a.savedAt),
+  get: (id: string): DraftItem | null => readAll().find((d) => d.id === id) ?? null,
+  save: (draft: Omit<DraftItem, "id" | "savedAt"> & { id?: string }): string => {
+    const all = readAll();
+    const id = draft.id ?? crypto.randomUUID();
+    const now = Date.now();
+    const existing = all.findIndex((d) => d.id === id);
+    const item: DraftItem = { ...draft, id, savedAt: now };
+    if (existing >= 0) {
+      all[existing] = item;
+    } else {
+      all.push(item);
     }
-  }, [id]);
+    writeAll(all);
+    return id;
+  },
+  delete: (id: string) => {
+    writeAll(readAll().filter((d) => d.id !== id));
+  },
+  clear: () => {
+    localStorage.removeItem(STORAGE_KEY);
+  },
+};
 
-  // 임시저장 실행
+// 컴포넌트용 훅
+export function useDraft() {
   const save = useCallback(
-    (data: Omit<DraftData, "savedAt">) => {
-      const draft: DraftData = { ...data, savedAt: Date.now() };
-      localStorage.setItem(draftKey(id), JSON.stringify(draft));
-      setSavedAt(new Date(draft.savedAt));
-      setHasDraft(true);
+    (draft: Omit<DraftItem, "id" | "savedAt"> & { id?: string }): string => {
+      return draftStorage.save(draft);
     },
-    [id]
+    []
   );
 
-  // 디바운스 자동 저장 트리거
-  const scheduleSave = useCallback(
-    (data: Omit<DraftData, "savedAt">) => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => save(data), DEBOUNCE_MS);
-    },
-    [save]
-  );
-
-  // 임시저장 불러오기
-  const load = useCallback((): DraftData | null => {
-    const raw = localStorage.getItem(draftKey(id));
-    if (!raw) return null;
-    try {
-      return JSON.parse(raw) as DraftData;
-    } catch {
-      return null;
-    }
-  }, [id]);
-
-  // 임시저장 삭제 (출간 완료 후)
-  const clear = useCallback(() => {
-    localStorage.removeItem(draftKey(id));
-    setSavedAt(null);
-    setHasDraft(false);
-  }, [id]);
-
-  // 언마운트 시 타이머 정리
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
+  const remove = useCallback((id: string) => {
+    draftStorage.delete(id);
   }, []);
 
-  return { save, scheduleSave, load, clear, savedAt, hasDraft };
+  return { save, remove };
 }
