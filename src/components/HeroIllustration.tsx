@@ -1,6 +1,6 @@
 export default function HeroIllustration() {
   return (
-    <div className="relative w-full max-w-sm sm:max-w-md aspect-square select-none" aria-hidden="true">
+    <div className="relative w-full max-w-[200px] sm:max-w-[240px] aspect-square select-none" aria-hidden="true">
       <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
         <defs>
           <linearGradient id="shield-grad" x1="0%" y1="0%" x2="100%" y2="100%">

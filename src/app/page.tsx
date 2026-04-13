@@ -19,31 +19,31 @@ export default async function HomePage() {
     <div className="animate-in">
       {/* Hero Section */}
       <section className="hero-pattern border-b border-[var(--card-border)]">
-        <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+        <div className="max-w-6xl mx-auto px-6 py-8 md:py-10">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 leading-tight">
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight mb-2 leading-tight">
                 <span className="gradient-text">DEVS</span>
                 <br />
                 <span className="gradient-text">VLTRA</span>
               </h1>
-              <div className="mb-6" />
+              <div className="mb-3" />
 
               {/* Stats */}
-              <div className="flex gap-6">
+              <div className="flex gap-5">
                 <div className="stat-item">
-                  <div className="stat-number">{posts.length}</div>
-                  <div className="text-xs text-[var(--muted)] mt-1">Posts</div>
+                  <div className="stat-number text-lg">{posts.length}</div>
+                  <div className="text-[10px] text-[var(--muted)] mt-0.5">Posts</div>
                 </div>
                 <div className="stat-item">
-                  <div className="stat-number">{categories.length}</div>
-                  <div className="text-xs text-[var(--muted)] mt-1">Categories</div>
+                  <div className="stat-number text-lg">{categories.length}</div>
+                  <div className="text-[10px] text-[var(--muted)] mt-0.5">Categories</div>
                 </div>
                 <div className="stat-item">
-                  <div className="stat-number">
+                  <div className="stat-number text-lg">
                     {Array.from(new Set(posts.flatMap((p) => p.tags))).length}
                   </div>
-                  <div className="text-xs text-[var(--muted)] mt-1">Tags</div>
+                  <div className="text-[10px] text-[var(--muted)] mt-0.5">Tags</div>
                 </div>
               </div>
             </div>
