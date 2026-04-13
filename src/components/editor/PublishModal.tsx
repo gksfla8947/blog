@@ -137,6 +137,9 @@ export default function PublishModal({
                   className="flex-1 px-3 py-2.5 text-sm bg-transparent text-[var(--foreground)] outline-none disabled:text-[var(--muted)] disabled:cursor-not-allowed"
                 />
               </div>
+              <p className="text-xs text-[var(--muted)] mt-1.5">
+                영문 소문자, 숫자, 하이픈(-)만 사용 가능합니다
+              </p>
             </div>
 
             {/* Spacer */}
