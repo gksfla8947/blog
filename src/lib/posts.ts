@@ -35,8 +35,51 @@ function extractCoverImage(html: string): string | null {
   return match ? match[1] : null;
 }
 
+/**
+ * BlockNote HTML을 조회용으로 정리:
+ * 1. JSON에서 코드 블록 언어 정보를 추출하여 <code>에 language-xxx 클래스 주입
+ * 2. 에디터 전용 요소(<select>, contenteditable 등) 제거
+ */
+function cleanContentHtml(html: string, contentJson: unknown): string {
+  if (!html) return html;
+
+  // 에디터 전용 <select> 드롭다운 제거
+  let cleaned = html.replace(/<div contenteditable="false"><select>[\s\S]*?<\/select><\/div>/g, "");
+
+  // JSON에서 codeBlock 언어 정보 순서대로 추출
+  const languages: string[] = [];
+  function walk(blocks: unknown[]) {
+    for (const block of blocks) {
+      const b = block as Record<string, unknown>;
+      if (b?.type === "codeBlock") {
+        const props = b.props as Record<string, unknown> | undefined;
+        languages.push((props?.language as string) || "text");
+      }
+      if (Array.isArray(b?.children)) walk(b.children as unknown[]);
+    }
+  }
+  const blocks = Array.isArray(contentJson) ? contentJson : [];
+  walk(blocks);
+
+  // codeBlock의 <code> 태그에 language-xxx 클래스 주입
+  let langIdx = 0;
+  cleaned = cleaned.replace(
+    /(<div[^>]*data-content-type="codeBlock"[^>]*><pre><code)([^>]*>)/g,
+    (_match, before, after) => {
+      const lang = languages[langIdx++] || "text";
+      if (lang && lang !== "text") {
+        return `${before} class="language-${lang}"${after.replace(/class="[^"]*"/, "")}`;
+      }
+      return `${before}${after}`;
+    }
+  );
+
+  return cleaned;
+}
+
 function dbPostToPost(row: typeof posts.$inferSelect): Post {
-  const html = row.contentHtml ?? "";
+  const rawHtml = row.contentHtml ?? "";
+  const html = cleanContentHtml(rawHtml, row.content);
   return {
     slug: row.id,
     title: row.title,
