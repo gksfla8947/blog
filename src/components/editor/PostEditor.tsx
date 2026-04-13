@@ -1,10 +1,62 @@
 "use client";
 
 import { useCreateBlockNote } from "@blocknote/react";
+import { BlockNoteSchema, createCodeBlockSpec } from "@blocknote/core";
+import {
+  filterSuggestionItems,
+  insertOrUpdateBlockForSlashMenu,
+} from "@blocknote/core/extensions";
 import { BlockNoteView } from "@blocknote/mantine";
+import {
+  DefaultReactSuggestionItem,
+  getDefaultReactSlashMenuItems,
+  SuggestionMenuController,
+} from "@blocknote/react";
+import { codeBlockOptions } from "@blocknote/code-block";
+import { Callout } from "./CalloutBlock";
 import "@blocknote/react/style.css";
 import "@blocknote/mantine/style.css";
 import { useCallback, useImperativeHandle, forwardRef, useEffect, useState } from "react";
+
+const extendedCodeBlockOptions = {
+  ...codeBlockOptions,
+  supportedLanguages: {
+    ...codeBlockOptions.supportedLanguages,
+    dockerfile: {
+      name: "Dockerfile",
+      aliases: ["dockerfile", "docker"],
+    },
+  },
+};
+
+const schema = BlockNoteSchema.create().extend({
+  blockSpecs: {
+    codeBlock: createCodeBlockSpec(extendedCodeBlockOptions),
+    callout: Callout(),
+  },
+});
+
+type EditorType = typeof schema extends BlockNoteSchema<infer B, infer I, infer S>
+  ? Parameters<typeof getDefaultReactSlashMenuItems<B, I, S>>[0]
+  : never;
+
+const getCustomSlashMenuItems = (
+  editor: EditorType
+): DefaultReactSuggestionItem[] => [
+  ...getDefaultReactSlashMenuItems(editor),
+  {
+    title: "Callout",
+    onItemClick: () =>
+      insertOrUpdateBlockForSlashMenu(editor, {
+        type: "callout" as any,
+        props: { type: "info" },
+      }),
+    aliases: ["callout", "info", "warning", "note", "alert"],
+    group: "Basic blocks",
+    icon: <span style={{ fontSize: 18 }}>💡</span>,
+    subtext: "Callout block for tips, warnings, and notes",
+  },
+];
 
 interface PostEditorProps {
   initialContent?: unknown[];
@@ -18,7 +70,6 @@ export interface PostEditorRef {
   getHTML: () => Promise<string>;
 }
 
-/** content JSON이 마이그레이션 placeholder인지 확인 */
 function isPlaceholder(content?: unknown[]): boolean {
   if (!content || content.length === 0) return true;
   if (content.length === 1) {
@@ -40,6 +91,7 @@ const PostEditor = forwardRef<PostEditorRef, PostEditorProps>(
     const [ready, setReady] = useState(false);
 
     const editor = useCreateBlockNote({
+      schema,
       uploadFile: async (file: File) => {
         const formData = new FormData();
         formData.append("file", file);
@@ -56,18 +108,15 @@ const PostEditor = forwardRef<PostEditorRef, PostEditorProps>(
       },
     });
 
-    // 에디터 초기화: HTML fallback 또는 BlockNote JSON
     useEffect(() => {
       if (ready) return;
 
       async function init() {
         try {
           if (initialHtml && isPlaceholder(initialContent)) {
-            // 마이그레이션된 포스트 — HTML에서 블록 변환
             const blocks = await editor.tryParseHTMLToBlocks(initialHtml);
             editor.replaceBlocks(editor.document, blocks);
           } else if (initialContent && !isPlaceholder(initialContent)) {
-            // 정상 BlockNote JSON
             editor.replaceBlocks(editor.document, initialContent as any);
           }
         } catch (e) {
@@ -98,7 +147,14 @@ const PostEditor = forwardRef<PostEditorRef, PostEditorProps>(
 
     return (
       <div className="blocknote-editor min-h-[500px]">
-        <BlockNoteView editor={editor} onChange={handleChange} theme="light" />
+        <BlockNoteView editor={editor} onChange={handleChange} theme="light" slashMenu={false}>
+          <SuggestionMenuController
+            triggerCharacter="/"
+            getItems={async (query) =>
+              filterSuggestionItems(getCustomSlashMenuItems(editor as any), query)
+            }
+          />
+        </BlockNoteView>
       </div>
     );
   }
