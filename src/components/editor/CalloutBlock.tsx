@@ -22,7 +22,7 @@ export const Callout = createReactBlockSpec(
         values: ["info", "warning", "error", "success", "note"],
       },
     },
-    content: "none",
+    content: "inline",
   },
   {
     render: (props) => {
@@ -68,7 +68,7 @@ export const Callout = createReactBlockSpec(
               ))}
             </Menu.Dropdown>
           </Menu>
-          <div style={{ flex: 1 }} />
+          <div style={{ flex: 1 }} ref={props.contentRef} />
         </div>
       );
     },

@@ -50,7 +50,6 @@ const getCustomSlashMenuItems = (
       insertOrUpdateBlockForSlashMenu(editor, {
         type: "callout" as any,
         props: { type: "info" },
-        children: [{ type: "paragraph" as any }],
       });
     },
     aliases: ["callout", "info", "warning", "note", "alert"],
