@@ -97,8 +97,8 @@ const PostEditor = forwardRef<PostEditorRef, PostEditorProps>(
     }, [editor, onChange]);
 
     return (
-      <div className="blocknote-editor rounded-lg border border-[var(--card-border)] bg-white dark:bg-[#1a1a2e] min-h-[400px]">
-        <BlockNoteView editor={editor} onChange={handleChange} theme="dark" />
+      <div className="blocknote-editor min-h-[500px]">
+        <BlockNoteView editor={editor} onChange={handleChange} theme="light" />
       </div>
     );
   }
