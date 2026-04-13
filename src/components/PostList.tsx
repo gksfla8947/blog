@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback } from "react";
 import PostCard from "./PostCard";
 import Sidebar from "./Sidebar";
+import Pagination from "./Pagination";
 import type { Post } from "@/lib/posts";
 
 interface PostListProps {
@@ -12,6 +13,8 @@ interface PostListProps {
 
 export default function PostList({ posts, categories }: PostListProps) {
   const [activeCategory, setActiveCategory] = useState("All");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const isFirstRender = useRef(true);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -20,14 +23,25 @@ export default function PostList({ posts, categories }: PostListProps) {
       ? posts
       : posts.filter((p) => p.category === activeCategory);
 
+  const start = (page - 1) * pageSize;
+  const paged = filtered.slice(start, start + pageSize);
+
   const handleCategoryChange = useCallback((cat: string) => {
     isFirstRender.current = false;
-    // 카테고리 변경 시 리스트 영역 상단으로 부드럽게 스크롤
     if (listRef.current) {
       const top = listRef.current.getBoundingClientRect().top + window.scrollY - 96;
       window.scrollTo({ top: Math.max(0, top), behavior: "instant" });
     }
     setActiveCategory(cat);
+    setPage(1);
+  }, []);
+
+  const handlePageChange = useCallback((p: number) => {
+    setPage(p);
+    if (listRef.current) {
+      const top = listRef.current.getBoundingClientRect().top + window.scrollY - 96;
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    }
   }, []);
 
   return (
@@ -68,13 +82,23 @@ export default function PostList({ posts, categories }: PostListProps) {
               <p className="text-[var(--muted)]">아직 작성된 글이 없습니다.</p>
             </div>
           ) : (
-            <div
-              className={`flex flex-col gap-4 ${isFirstRender.current ? "stagger-in" : "animate-fade"}`}
-            >
-              {filtered.map((post) => (
-                <PostCard key={post.slug} post={post} />
-              ))}
-            </div>
+            <>
+              <div
+                className={`flex flex-col gap-4 ${isFirstRender.current ? "stagger-in" : "animate-fade"}`}
+              >
+                {paged.map((post) => (
+                  <PostCard key={post.slug} post={post} />
+                ))}
+              </div>
+
+              <Pagination
+                currentPage={page}
+                totalItems={filtered.length}
+                pageSize={pageSize}
+                onPageChange={handlePageChange}
+                onPageSizeChange={setPageSize}
+              />
+            </>
           )}
         </div>
       </div>
