@@ -63,16 +63,24 @@ export default function PdfExportButton({ slug }: PdfExportButtonProps) {
       font-size: 12px;
       color: #888;
     }
-    .content h1 { font-size: 24px; margin: 1.5em 0 0.5em; }
-    .content h2 { font-size: 20px; margin: 1.4em 0 0.5em; }
-    .content h3 { font-size: 17px; margin: 1.3em 0 0.5em; }
+    /* === Block spacing === */
+    .content .bn-block-outer { margin: 0.4em 0; }
+
+    /* === Headings === */
+    .content h1 { font-size: 24px; margin: 1.5em 0 0.5em; font-weight: 700; }
+    .content h2 { font-size: 20px; margin: 1.4em 0 0.5em; font-weight: 700; }
+    .content h3 { font-size: 17px; margin: 1.3em 0 0.5em; font-weight: 600; }
     .content p { margin: 0.75em 0; }
+
+    /* === Images === */
     .content img {
       max-width: 100%;
       height: auto;
       border-radius: 6px;
       margin: 1em 0;
     }
+
+    /* === Code blocks === */
     .content pre {
       background: #f6f8fa;
       border: 1px solid #e1e4e8;
@@ -90,26 +98,90 @@ export default function PdfExportButton({ slug }: PdfExportButtonProps) {
       font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
       font-size: 0.9em;
     }
-    .content p > code {
+    .content p > code, .content li > code, .content .bn-inline-content > code {
       background: #f0f0f0;
       padding: 2px 6px;
       border-radius: 3px;
     }
+
+    /* === Blockquote / Quote === */
     .content blockquote {
       border-left: 4px solid #ddd;
       padding-left: 16px;
       color: #555;
       margin: 1em 0;
     }
+
+    /* === Standard HTML lists (migrated posts) === */
     .content ul, .content ol {
       padding-left: 24px;
       margin: 0.75em 0;
     }
     .content li { margin: 0.3em 0; }
+
+    /* === BlockNote bullet list === */
+    .content [data-content-type="bulletListItem"] {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      padding-left: 8px;
+    }
+    .content [data-content-type="bulletListItem"]::before {
+      content: "\\2022";
+      font-weight: bold;
+      min-width: 14px;
+      margin-top: 0;
+    }
+
+    /* === BlockNote numbered list === */
+    .content [data-content-type="numberedListItem"] {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      padding-left: 8px;
+      counter-increment: bn-list;
+    }
+    .content [data-content-type="numberedListItem"]::before {
+      content: attr(data-index) ".";
+      font-weight: 600;
+      min-width: 20px;
+      margin-top: 0;
+    }
+
+    /* === Callout === */
+    .content [data-content-type="callout"] > div {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      background: #f0f7ff;
+      border: 1px solid #d0e3f5;
+      margin: 0.75em 0;
+    }
+    .content [data-content-type="callout"] [contenteditable="false"] {
+      display: none;
+    }
+
+    /* === Divider === */
+    .content [data-content-type="divider"],
+    .content hr {
+      border: none;
+      border-top: 1px solid #ddd;
+      margin: 1.5em 0;
+      height: 0;
+    }
+    .content [data-content-type="divider"] hr {
+      border: none;
+      border-top: 1px solid #ddd;
+    }
+
+    /* === Table === */
     .content table {
       width: 100%;
       border-collapse: collapse;
       margin: 1em 0;
+      page-break-inside: avoid;
     }
     .content th, .content td {
       border: 1px solid #ddd;
@@ -117,7 +189,11 @@ export default function PdfExportButton({ slug }: PdfExportButtonProps) {
       text-align: left;
     }
     .content th { background: #f6f8fa; font-weight: 600; }
+
+    /* === Links === */
     .content a { color: #0969da; text-decoration: none; }
+
+    /* === Footer === */
     .footer {
       margin-top: 40px;
       padding-top: 16px;
@@ -126,14 +202,18 @@ export default function PdfExportButton({ slug }: PdfExportButtonProps) {
       color: #aaa;
       text-align: center;
     }
-    /* editor-specific cleanup */
+
+    /* === Editor cleanup === */
     .content select,
     .content [contenteditable="false"] > select { display: none !important; }
     .content div[contenteditable="false"]:has(select) { display: none !important; }
+    .content [data-node-view-wrapper] > div > [contenteditable="false"][aria-haspopup] { display: none !important; }
+
     @media print {
       body { padding: 20px; }
       pre { page-break-inside: avoid; }
       img { page-break-inside: avoid; }
+      table { page-break-inside: avoid; }
     }
   </style>
 </head>
