@@ -27,7 +27,6 @@
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.45.2",
     "gray-matter": "^4.0.3",
-    "html2pdf.js": "^0.14.0",
     "jose": "^6.2.2",
     "next": "16.2.3",
     "next-mdx-remote": "^6.0.0",

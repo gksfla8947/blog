@@ -4,7 +4,6 @@ import { format } from "date-fns";
 import Link from "next/link";
 import type { Metadata } from "next";
 import CodeHighlight from "@/components/CodeHighlight";
-import PdfExportButton from "@/components/PdfExportButton";
 
 const THUMB_ICONS: Record<number, string> = {
   1: "{ }",
@@ -101,24 +100,18 @@ export default async function PostPage({ params }: { params: Params }) {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-1.5 mt-5">
-            {post.tags.map((tag) => (
-              <span
-                key={tag}
-                className="px-2.5 py-0.5 text-xs font-medium rounded-full bg-white/15 backdrop-blur-sm border border-white/20"
-              >
-                {tag}
-              </span>
-            ))}
-            <span className="mx-1" />
-            <PdfExportButton
-              title={post.title}
-              date={format(new Date(post.date), "yyyy.MM.dd")}
-              category={post.category}
-              tags={post.tags}
-              author="강건너물구경"
-            />
-          </div>
+          {post.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-5">
+              {post.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="px-2.5 py-0.5 text-xs font-medium rounded-full bg-white/15 backdrop-blur-sm border border-white/20"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </header>
 

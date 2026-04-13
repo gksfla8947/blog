@@ -3,127 +3,178 @@
 import { useState, useCallback } from "react";
 
 interface PdfExportButtonProps {
-  title: string;
-  date: string;
-  category: string;
-  tags: string[];
-  author: string;
+  slug: string;
 }
 
-export default function PdfExportButton({
-  title,
-  date,
-  category,
-  tags,
-  author,
-}: PdfExportButtonProps) {
+export default function PdfExportButton({ slug }: PdfExportButtonProps) {
   const [exporting, setExporting] = useState(false);
 
   const handleExport = useCallback(async () => {
     setExporting(true);
     try {
-      const html2pdf = (await import("html2pdf.js")).default;
+      const res = await fetch(`/api/manage/posts/${slug}`);
+      if (!res.ok) throw new Error("Failed to fetch post");
+      const { post } = await res.json();
 
-      // Find the prose content
-      const proseEl = document.querySelector(".prose");
-      if (!proseEl) return;
+      const date = post.date ? new Date(post.date).toLocaleDateString("ko-KR") : "";
+      const tags = (post.tags ?? []).join(", ");
 
-      // Build a wrapper with header + content for the PDF
-      const wrapper = document.createElement("div");
-      wrapper.style.cssText =
-        "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1a1a1a; padding: 0;";
+      // Build clean HTML for printing
+      const html = `<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <title>${post.title}</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #1a1a1a;
+      line-height: 1.7;
+      padding: 40px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .header {
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 2px solid #e5e5e5;
+    }
+    .category {
+      font-size: 11px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1.3;
+      margin-bottom: 12px;
+    }
+    .meta {
+      font-size: 13px;
+      color: #666;
+    }
+    .tags {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #888;
+    }
+    .content h1 { font-size: 24px; margin: 1.5em 0 0.5em; }
+    .content h2 { font-size: 20px; margin: 1.4em 0 0.5em; }
+    .content h3 { font-size: 17px; margin: 1.3em 0 0.5em; }
+    .content p { margin: 0.75em 0; }
+    .content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 6px;
+      margin: 1em 0;
+    }
+    .content pre {
+      background: #f6f8fa;
+      border: 1px solid #e1e4e8;
+      border-radius: 6px;
+      padding: 14px;
+      font-size: 13px;
+      line-height: 1.5;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      page-break-inside: avoid;
+      margin: 1em 0;
+    }
+    .content code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.9em;
+    }
+    .content p > code {
+      background: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+    .content blockquote {
+      border-left: 4px solid #ddd;
+      padding-left: 16px;
+      color: #555;
+      margin: 1em 0;
+    }
+    .content ul, .content ol {
+      padding-left: 24px;
+      margin: 0.75em 0;
+    }
+    .content li { margin: 0.3em 0; }
+    .content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1em 0;
+    }
+    .content th, .content td {
+      border: 1px solid #ddd;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    .content th { background: #f6f8fa; font-weight: 600; }
+    .content a { color: #0969da; text-decoration: none; }
+    .footer {
+      margin-top: 40px;
+      padding-top: 16px;
+      border-top: 1px solid #e5e5e5;
+      font-size: 11px;
+      color: #aaa;
+      text-align: center;
+    }
+    /* editor-specific cleanup */
+    .content select,
+    .content [contenteditable="false"] > select { display: none !important; }
+    .content div[contenteditable="false"]:has(select) { display: none !important; }
+    @media print {
+      body { padding: 20px; }
+      pre { page-break-inside: avoid; }
+      img { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="category">${post.category}</div>
+    <h1>${post.title}</h1>
+    <div class="meta">강건너물구경 · ${date}</div>
+    ${tags ? `<div class="tags">${tags}</div>` : ""}
+  </div>
+  <div class="content">${post.contentHtml ?? ""}</div>
+  <div class="footer">DEVS VLTRA · devs-vltra.vercel.app</div>
+  <script>
+    window.onafterprint = () => window.close();
+    setTimeout(() => window.print(), 500);
+  </script>
+</body>
+</html>`;
 
-      // Header section
-      const header = document.createElement("div");
-      header.style.cssText = "margin-bottom: 32px; padding-bottom: 24px; border-bottom: 2px solid #e5e5e5;";
-      header.innerHTML = `
-        <div style="font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px;">${category}</div>
-        <h1 style="font-size: 28px; font-weight: 800; line-height: 1.3; margin: 0 0 12px 0; color: #111;">${title}</h1>
-        <div style="font-size: 13px; color: #666; margin-bottom: 8px;">${author} · ${date}</div>
-        ${tags.length > 0 ? `<div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px;">${tags.map((t) => `<span style="font-size: 11px; padding: 3px 10px; border-radius: 999px; background: #f3f4f6; color: #555;">${t}</span>`).join("")}</div>` : ""}
-      `;
-      wrapper.appendChild(header);
-
-      // Clone the prose content
-      const contentClone = proseEl.cloneNode(true) as HTMLElement;
-
-      // Clean up: remove interactive elements
-      contentClone.querySelectorAll("button, select, [contenteditable]").forEach((el) => el.remove());
-
-      // Fix code blocks for PDF readability
-      contentClone.querySelectorAll("pre").forEach((pre) => {
-        pre.style.cssText =
-          "background: #1e1e1e; color: #d4d4d4; padding: 16px; border-radius: 8px; font-size: 12px; line-height: 1.5; overflow: visible; white-space: pre-wrap; word-break: break-all; page-break-inside: avoid;";
-      });
-
-      // Fix images
-      contentClone.querySelectorAll("img").forEach((img) => {
-        img.style.cssText = "max-width: 100%; height: auto; border-radius: 8px; page-break-inside: avoid;";
-        img.crossOrigin = "anonymous";
-      });
-
-      wrapper.appendChild(contentClone);
-
-      // Footer
-      const footer = document.createElement("div");
-      footer.style.cssText =
-        "margin-top: 40px; padding-top: 16px; border-top: 1px solid #e5e5e5; font-size: 11px; color: #aaa; text-align: center;";
-      footer.textContent = `DEVS VLTRA · ${window.location.href}`;
-      wrapper.appendChild(footer);
-
-      const slugified = title
-        .replace(/[^a-zA-Z0-9가-힣\s]/g, "")
-        .replace(/\s+/g, "-")
-        .slice(0, 60);
-
-      await html2pdf()
-        .set({
-          margin: [12, 14, 12, 14],
-          filename: `${slugified}.pdf`,
-          image: { type: "jpeg", quality: 0.95 },
-          html2canvas: {
-            scale: 2,
-            useCORS: true,
-            letterRendering: true,
-            logging: false,
-          },
-          jsPDF: {
-            unit: "mm",
-            format: "a4",
-            orientation: "portrait",
-          },
-          pagebreak: { mode: ["avoid-all", "css", "legacy"] },
-        })
-        .from(wrapper)
-        .save();
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) {
+        alert("팝업이 차단되었습니다. 팝업을 허용해주세요.");
+        return;
+      }
+      printWindow.document.write(html);
+      printWindow.document.close();
     } catch (e) {
       console.error("PDF export failed:", e);
       alert("PDF 내보내기에 실패했습니다.");
     } finally {
       setExporting(false);
     }
-  }, [title, date, category, tags, author]);
+  }, [slug]);
 
   return (
     <button
       onClick={handleExport}
       disabled={exporting}
-      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white/80 hover:bg-white/25 hover:text-white transition-colors disabled:opacity-50"
+      className="px-3 py-1.5 text-xs rounded-md border border-[var(--card-border)] text-[var(--muted)] hover:text-[var(--foreground)] hover:border-[var(--foreground)]/30 transition-colors disabled:opacity-50"
       title="PDF로 내보내기"
     >
-      {exporting ? (
-        <svg className="animate-spin" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-        </svg>
-      ) : (
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-          <polyline points="14 2 14 8 20 8"/>
-          <line x1="16" y1="13" x2="8" y2="13"/>
-          <line x1="16" y1="17" x2="8" y2="17"/>
-          <polyline points="10 9 9 9 8 9"/>
-        </svg>
-      )}
       {exporting ? "생성 중..." : "PDF"}
     </button>
   );

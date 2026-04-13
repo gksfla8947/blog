@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { deletePost, togglePublish } from "./actions";
 import Pagination from "@/components/Pagination";
+import PdfExportButton from "@/components/PdfExportButton";
 
 interface PostRow {
   id: string;
@@ -161,6 +162,7 @@ export default function ManagePage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
+                    <PdfExportButton slug={post.id} />
                     <button
                       onClick={() => handleToggle(post.id, post.published)}
                       className="px-3 py-1.5 text-xs rounded-md border border-[var(--card-border)] text-[var(--muted)] hover:text-[var(--foreground)] hover:border-[var(--foreground)]/30 transition-colors"
