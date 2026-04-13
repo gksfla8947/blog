@@ -308,6 +308,11 @@ body {
   margin-left: 1.5em;
 }
 
+/* BlockNote nested block groups indentation */
+.prose [data-node-type="blockGroup"] [data-node-type="blockGroup"] {
+  margin-left: 1.5em;
+}
+
 /* BlockNote callout blocks */
 .prose [data-content-type="callout"] {
   margin: 0.75rem 0;
