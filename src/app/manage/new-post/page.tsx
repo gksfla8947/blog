@@ -22,10 +22,10 @@ const PostEditor = dynamic(() => import("@/components/editor/PostEditor"), {
 function slugify(text: string): string {
   return text
     .toLowerCase()
-    .replace(/[가-힣]/g, (ch) => ch)
-    .replace(/[^\w가-힣\s-]/g, "")
+    .replace(/[^a-z0-9\s-]/g, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
     .trim();
 }
 

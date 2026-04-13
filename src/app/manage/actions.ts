@@ -24,6 +24,7 @@ export async function createPost(data: {
 }) {
   assertAuth(await isAuthenticated());
   if (!data.category.trim()) throw new Error("카테고리를 입력하세요");
+  if (/[^a-z0-9\-]/.test(data.id)) throw new Error("슬러그는 영문 소문자, 숫자, 하이픈만 사용 가능합니다");
 
   await db.insert(posts).values({
     id: data.id,

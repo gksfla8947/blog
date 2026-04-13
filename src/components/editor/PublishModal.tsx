@@ -128,8 +128,12 @@ export default function PublishModal({
                 <input
                   type="text"
                   value={slug}
-                  onChange={(e) => onSlugChange(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/[^a-z0-9\-]/g, "");
+                    onSlugChange(val);
+                  }}
                   disabled={isEdit}
+                  placeholder="english-slug-only"
                   className="flex-1 px-3 py-2.5 text-sm bg-transparent text-[var(--foreground)] outline-none disabled:text-[var(--muted)] disabled:cursor-not-allowed"
                 />
               </div>
