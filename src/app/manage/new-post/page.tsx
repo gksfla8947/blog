@@ -64,6 +64,10 @@ export default function NewPostPage() {
       setError("제목을 입력하세요");
       return;
     }
+    if (!category.trim()) {
+      setError("카테고리를 입력하세요");
+      return;
+    }
     setError("");
     setShowPublish(true);
   }

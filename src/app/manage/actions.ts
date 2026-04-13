@@ -23,6 +23,7 @@ export async function createPost(data: {
   published: boolean;
 }) {
   assertAuth(await isAuthenticated());
+  if (!data.category.trim()) throw new Error("카테고리를 입력하세요");
 
   await db.insert(posts).values({
     id: data.id,
