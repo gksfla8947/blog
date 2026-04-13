@@ -26,6 +26,7 @@ interface PostData {
   category: string;
   tags: string[];
   content: unknown[];
+  contentHtml: string;
   published: boolean;
   date: string;
 }
@@ -229,6 +230,7 @@ export default function EditPostPage({ params }: { params: Promise<{ slug: strin
           <PostEditor
             ref={editorRef}
             initialContent={Array.isArray(post.content) ? post.content : undefined}
+            initialHtml={post.contentHtml ?? ""}
             postSlug={slug}
           />
         </div>
