@@ -58,7 +58,6 @@ export default function EditPostPage({
   const [showPublish, setShowPublish] = useState(false);
   const [existingCategories, setExistingCategories] = useState<string[]>([]);
   const [showRestoreBanner, setShowRestoreBanner] = useState(false);
-  const [editorDraftBlocks, setEditorDraftBlocks] = useState<unknown[] | undefined>();
 
   const { save, scheduleSave, load, clear, savedAt, hasDraft } = useDraft(`edit:${slug}`);
 
@@ -100,7 +99,9 @@ export default function EditPostPage({
     setDescription(draft.description);
     setCategory(draft.category);
     setTags(draft.tags);
-    if (draft.blocks.length > 0) setEditorDraftBlocks(draft.blocks);
+    if (draft.blocks.length > 0) {
+      editorRef.current?.setBlocks(draft.blocks);
+    }
     setShowRestoreBanner(false);
   }
 
@@ -255,8 +256,8 @@ export default function EditPostPage({
 
         <PostEditor
           ref={editorRef}
-          initialContent={editorDraftBlocks ?? (Array.isArray(post.content) ? post.content : undefined)}
-          initialHtml={editorDraftBlocks ? undefined : (post.contentHtml ?? "")}
+          initialContent={Array.isArray(post.content) ? post.content : undefined}
+          initialHtml={post.contentHtml ?? ""}
           postSlug={slug}
           onChange={(blocks) => scheduleSave({ title, slug, description, category, tags, blocks })}
         />

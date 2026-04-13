@@ -51,7 +51,6 @@ export default function NewPostPage() {
   const [showPublish, setShowPublish] = useState(false);
   const [existingCategories, setExistingCategories] = useState<string[]>([]);
   const [showRestoreBanner, setShowRestoreBanner] = useState(false);
-  const [editorInitialBlocks, setEditorInitialBlocks] = useState<unknown[] | undefined>();
 
   const { save, scheduleSave, load, clear, savedAt, hasDraft } = useDraft("new-post");
 
@@ -75,7 +74,9 @@ export default function NewPostPage() {
     setDescription(draft.description);
     setCategory(draft.category);
     setTags(draft.tags);
-    setEditorInitialBlocks(draft.blocks.length > 0 ? draft.blocks : undefined);
+    if (draft.blocks.length > 0) {
+      editorRef.current?.setBlocks(draft.blocks);
+    }
     setShowRestoreBanner(false);
   }
 
@@ -233,7 +234,6 @@ export default function NewPostPage() {
 
         <PostEditor
           ref={editorRef}
-          initialContent={editorInitialBlocks}
           postSlug={slug || undefined}
           onChange={(blocks) => scheduleSave({ title, slug, description, category, tags, blocks })}
         />

@@ -69,6 +69,7 @@ interface PostEditorProps {
 export interface PostEditorRef {
   getBlocks: () => unknown[];
   getHTML: () => Promise<string>;
+  setBlocks: (blocks: unknown[]) => void;
 }
 
 function isPlaceholder(content?: unknown[]): boolean {
@@ -137,6 +138,9 @@ const PostEditor = forwardRef<PostEditorRef, PostEditorProps>(
         } catch {
           return "";
         }
+      },
+      setBlocks: (blocks: unknown[]) => {
+        editor.replaceBlocks(editor.document, blocks as any);
       },
     }));
 
