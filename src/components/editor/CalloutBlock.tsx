@@ -22,7 +22,7 @@ export const Callout = createReactBlockSpec(
         values: ["info", "warning", "error", "success", "note"],
       },
     },
-    content: "inline",
+    content: "none",
   },
   {
     render: (props) => {
@@ -44,7 +44,7 @@ export const Callout = createReactBlockSpec(
             <Menu.Target>
               <div
                 contentEditable={false}
-                style={{ cursor: "pointer", fontSize: "1.25rem", userSelect: "none" }}
+                style={{ cursor: "pointer", fontSize: "1.25rem", userSelect: "none", flexShrink: 0 }}
               >
                 {ct.icon}
               </div>
@@ -68,7 +68,7 @@ export const Callout = createReactBlockSpec(
               ))}
             </Menu.Dropdown>
           </Menu>
-          <div style={{ flex: 1 }} ref={props.contentRef} />
+          <div style={{ flex: 1 }} />
         </div>
       );
     },

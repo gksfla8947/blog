@@ -46,11 +46,13 @@ const getCustomSlashMenuItems = (
   ...getDefaultReactSlashMenuItems(editor),
   {
     title: "Callout",
-    onItemClick: () =>
+    onItemClick: () => {
       insertOrUpdateBlockForSlashMenu(editor, {
         type: "callout" as any,
         props: { type: "info" },
-      }),
+        children: [{ type: "paragraph" as any }],
+      });
+    },
     aliases: ["callout", "info", "warning", "note", "alert"],
     group: "Basic blocks",
     icon: <span style={{ fontSize: 18 }}>💡</span>,

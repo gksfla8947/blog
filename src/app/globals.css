@@ -319,13 +319,13 @@ body {
   width: 100%;
 }
 
-/* Editor callout full width */
+/* Editor callout: wrap children visually inside the callout box */
 .blocknote-editor [data-content-type="callout"] {
   width: 100%;
 }
 
-.blocknote-editor [data-content-type="callout"] > div:last-child {
-  flex: 1;
+.blocknote-editor [data-content-type="callout"] + [data-node-type="blockGroup"] {
+  margin-left: 0;
 }
 
 .prose code:not(pre code) {
