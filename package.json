@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "backup": "dotenv -e .env.local -- npx tsx scripts/backup.ts",
+    "backup:images": "dotenv -e .env.local -- npx tsx scripts/backup.ts --images",
+    "restore": "dotenv -e .env.local -- npx tsx scripts/restore.ts",
+    "restore:dry": "dotenv -e .env.local -- npx tsx scripts/restore.ts --dry-run"
   },
   "dependencies": {
     "@blocknote/code-block": "^0.47.3",

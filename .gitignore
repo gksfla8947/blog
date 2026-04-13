@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# backups (로컬 전용, 민감 데이터 포함)
+/backups/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
