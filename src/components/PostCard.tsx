@@ -10,7 +10,7 @@ const THUMB_ICONS: Record<number, string> = {
   5: ">> _",
 };
 
-export default function PostCard({ post }: { post: Post }) {
+export default function PostCard({ post, views }: { post: Post; views?: number }) {
   return (
     <article className="post-card group">
       <Link href={`/posts/${post.slug}`} className="flex flex-col sm:flex-row">
@@ -61,8 +61,17 @@ export default function PostCard({ post }: { post: Post }) {
             </div>
             <div className="flex items-center gap-2 text-xs text-[var(--muted)] shrink-0 ml-3">
               <time dateTime={post.date}>{format(new Date(post.date), "yyyy.MM.dd")}</time>
-              <span className="w-1 h-1 rounded-full bg-[var(--muted)] opacity-40" />
-              <span>{post.readingTime}</span>
+              {views !== undefined && (
+                <>
+                  <span className="w-1 h-1 rounded-full bg-[var(--muted)] opacity-40" />
+                  <span className="flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    {views.toLocaleString()}
+                  </span>
+                </>
+              )}
             </div>
           </div>
         </div>

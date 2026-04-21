@@ -44,6 +44,7 @@ function NewPostInner() {
 
   const [draftId, setDraftId] = useState<string | undefined>(undefined);
   const [initialBlocks, setInitialBlocks] = useState<unknown[] | undefined>(undefined);
+  const [draftLoaded, setDraftLoaded] = useState(false);
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [slugManual, setSlugManual] = useState(false);
@@ -67,11 +68,19 @@ function NewPostInner() {
   }, []);
 
   // Load draft from URL param if present
+  // draftLoaded가 true가 된 이후에만 PostEditor를 렌더링해서
+  // initialContent가 확정된 상태로 에디터가 마운트되도록 함
   useEffect(() => {
     const id = searchParams.get("draft");
-    if (!id) return;
+    if (!id) {
+      setDraftLoaded(true);
+      return;
+    }
     const draft = draftStorage.get(id);
-    if (!draft) return;
+    if (!draft) {
+      setDraftLoaded(true);
+      return;
+    }
     setDraftId(draft.id);
     setTitle(draft.title);
     setSlug(draft.slug ?? "");
@@ -84,6 +93,7 @@ function NewPostInner() {
       setInitialBlocks(draft.blocks);
     }
     setHasContent(true);
+    setDraftLoaded(true);
   }, [searchParams]);
 
   // Track content changes
@@ -225,12 +235,18 @@ function NewPostInner() {
           <CategoryInput value={category} onChange={setCategory} existingCategories={existingCategories} />
         </div>
 
-        <PostEditor
-          ref={editorRef}
-          initialContent={initialBlocks}
-          postSlug={slug || undefined}
-          onChange={handleEditorChange}
-        />
+        {draftLoaded ? (
+          <PostEditor
+            ref={editorRef}
+            initialContent={initialBlocks}
+            postSlug={slug || undefined}
+            onChange={handleEditorChange}
+          />
+        ) : (
+          <div className="min-h-[500px] flex items-center justify-center text-gray-300">
+            에디터 로딩 중...
+          </div>
+        )}
       </main>
 
       {showPublish && (

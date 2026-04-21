@@ -9,8 +9,8 @@ export interface Post {
   description: string;
   tags: string[];
   category: string;
-  readingTime: string;
-  content: string; // contentHtml for rendering
+  content: string; // contentHtml (SEO/RSS 용 fallback)
+  blocks: unknown[]; // BlockNote JSON — 포스트 화면 렌더의 1차 소스
   thumbnail: number;
   coverImage: string | null;
 }
@@ -23,12 +23,6 @@ function slugToThumbnail(slug: string): number {
   return (Math.abs(hash) % 5) + 1;
 }
 
-function estimateReadingTime(html: string): string {
-  const text = html.replace(/<[^>]*>/g, "");
-  const words = text.split(/\s+/).filter(Boolean).length;
-  const minutes = Math.max(1, Math.ceil(words / 200));
-  return `${minutes} min read`;
-}
 
 function extractCoverImage(html: string): string | null {
   const match = html.match(/<img[^>]+src="([^"]+)"/);
@@ -87,8 +81,9 @@ function dbPostToPost(row: typeof posts.$inferSelect): Post {
     description: row.description ?? "",
     tags: row.tags ?? [],
     category: row.category,
-    readingTime: estimateReadingTime(html),
+
     content: html,
+    blocks: Array.isArray(row.content) ? (row.content as unknown[]) : [],
     thumbnail: slugToThumbnail(row.id),
     coverImage: extractCoverImage(html),
   };

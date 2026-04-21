@@ -9,9 +9,10 @@ import type { Post } from "@/lib/posts";
 interface PostListProps {
   posts: Post[];
   categories: { name: string; count: number }[];
+  viewsMap?: Record<string, number>;
 }
 
-export default function PostList({ posts, categories }: PostListProps) {
+export default function PostList({ posts, categories, viewsMap }: PostListProps) {
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -136,7 +137,7 @@ export default function PostList({ posts, categories }: PostListProps) {
                 className={`flex flex-col gap-4 ${isFirstRender.current ? "stagger-in" : "animate-fade"}`}
               >
                 {paged.map((post) => (
-                  <PostCard key={post.slug} post={post} />
+                  <PostCard key={post.slug} post={post} views={viewsMap?.[post.slug]} />
                 ))}
               </div>
 

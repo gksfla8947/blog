@@ -1,11 +1,22 @@
 import { getAllPosts } from "@/lib/posts";
 import HeroIllustration from "@/components/HeroIllustration";
 import PostList from "@/components/PostList";
+import { redis, postViewKey } from "@/lib/redis";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const posts = await getAllPosts();
+
+  // 모든 포스트 조회수를 Redis mget으로 한 번에 조회
+  const viewsMap: Record<string, number> = {};
+  if (posts.length > 0) {
+    const keys = posts.map((p) => postViewKey(p.slug));
+    const counts = await redis.mget<(number | null)[]>(...keys);
+    posts.forEach((p, i) => {
+      viewsMap[p.slug] = counts[i] ?? 0;
+    });
+  }
 
   // Build category list with counts
   const catMap = new Map<string, number>();
@@ -57,7 +68,7 @@ export default async function HomePage() {
       </section>
 
       {/* Posts + Sidebar */}
-      <PostList posts={posts} categories={categories} />
+      <PostList posts={posts} categories={categories} viewsMap={viewsMap} />
     </div>
   );
 }

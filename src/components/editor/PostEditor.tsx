@@ -1,7 +1,7 @@
 "use client";
 
 import { useCreateBlockNote } from "@blocknote/react";
-import { BlockNoteSchema, createCodeBlockSpec } from "@blocknote/core";
+import type { BlockNoteSchema } from "@blocknote/core";
 import {
   filterSuggestionItems,
   insertOrUpdateBlockForSlashMenu,
@@ -12,29 +12,11 @@ import {
   getDefaultReactSlashMenuItems,
   SuggestionMenuController,
 } from "@blocknote/react";
-import { codeBlockOptions } from "@blocknote/code-block";
-import { Callout } from "./CalloutBlock";
 import "@blocknote/react/style.css";
 import "@blocknote/mantine/style.css";
 import { useCallback, useImperativeHandle, forwardRef, useEffect, useState } from "react";
-
-const extendedCodeBlockOptions = {
-  ...codeBlockOptions,
-  supportedLanguages: {
-    ...codeBlockOptions.supportedLanguages,
-    dockerfile: {
-      name: "Dockerfile",
-      aliases: ["dockerfile", "docker"],
-    },
-  },
-};
-
-const schema = BlockNoteSchema.create().extend({
-  blockSpecs: {
-    codeBlock: createCodeBlockSpec(extendedCodeBlockOptions),
-    callout: Callout(),
-  },
-});
+import { blocknoteSchema as schema } from "./blocknote-schema";
+import { useTheme } from "next-themes";
 
 type EditorType = typeof schema extends BlockNoteSchema<infer B, infer I, infer S>
   ? Parameters<typeof getDefaultReactSlashMenuItems<B, I, S>>[0]
@@ -91,6 +73,7 @@ function isPlaceholder(content?: unknown[]): boolean {
 const PostEditor = forwardRef<PostEditorRef, PostEditorProps>(
   function PostEditor({ initialContent, initialHtml, postSlug, onChange }, ref) {
     const [ready, setReady] = useState(false);
+    const { resolvedTheme } = useTheme();
 
     const editor = useCreateBlockNote({
       schema,
@@ -99,14 +82,26 @@ const PostEditor = forwardRef<PostEditorRef, PostEditorProps>(
         formData.append("file", file);
         if (postSlug) formData.append("postSlug", postSlug);
 
-        const res = await fetch("/api/manage/upload", {
-          method: "POST",
-          body: formData,
-        });
+        let res: Response;
+        try {
+          res = await fetch("/api/manage/upload", {
+            method: "POST",
+            body: formData,
+          });
+        } catch (e) {
+          alert("이미지 업로드 실패: 네트워크 오류가 발생했습니다.");
+          throw e;
+        }
 
-        if (!res.ok) throw new Error("Upload failed");
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          const msg = errData.error ?? `업로드 실패 (${res.status})`;
+          alert(`이미지 업로드 실패: ${msg}`);
+          throw new Error(msg);
+        }
+
         const data = await res.json();
-        return data.url;
+        return data.url as string;
       },
     });
 
@@ -152,7 +147,7 @@ const PostEditor = forwardRef<PostEditorRef, PostEditorProps>(
 
     return (
       <div className="blocknote-editor min-h-[500px]">
-        <BlockNoteView editor={editor} onChange={handleChange} theme="light" slashMenu={false}>
+        <BlockNoteView editor={editor} onChange={handleChange} theme={resolvedTheme === "dark" ? "dark" : "light"} slashMenu={false}>
           <SuggestionMenuController
             triggerCharacter="/"
             getItems={async (query) =>

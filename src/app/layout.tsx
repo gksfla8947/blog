@@ -2,6 +2,7 @@ import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import ThemeProvider from "@/components/ThemeProvider";
+import SessionProviderWrapper from "@/components/SessionProviderWrapper";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import "highlight.js/styles/github-dark.css";
@@ -81,12 +82,14 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
-        <ThemeProvider>
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
-          <Analytics />
-        </ThemeProvider>
+        <SessionProviderWrapper>
+          <ThemeProvider>
+            <Header />
+            <main className="flex-1">{children}</main>
+            <Footer />
+            <Analytics />
+          </ThemeProvider>
+        </SessionProviderWrapper>
       </body>
     </html>
   );

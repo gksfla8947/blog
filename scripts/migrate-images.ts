@@ -74,7 +74,7 @@ async function main() {
 
   for (const filePath of allFiles) {
     const relativePath = "/" + path.relative(publicDir, filePath); // "/images/notion/docker/image-1.png"
-    const blobPathname = `blog${relativePath}`; // "blog/images/notion/docker/image-1.png"
+    const blobPathname = `devs-vltra${relativePath}`; // "devs-vltra/images/notion/docker/image-1.png"
     const ext = path.extname(filePath).toLowerCase();
     const contentType = MIME[ext] ?? "application/octet-stream";
 

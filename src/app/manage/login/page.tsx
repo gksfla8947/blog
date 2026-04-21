@@ -36,11 +36,24 @@ export default function LoginPage() {
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Chrome 피싱 탐지 오작동 방지: 표준 username 필드 (hidden) */}
+          <input
+            type="text"
+            name="username"
+            autoComplete="username"
+            defaultValue="admin"
+            className="hidden"
+            readOnly
+            aria-hidden="true"
+          />
           <input
             type="password"
+            id="password"
+            name="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="비밀번호"
+            autoComplete="current-password"
             className="w-full px-4 py-3 rounded-lg border border-[var(--card-border)] bg-[var(--background)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
             autoFocus
           />

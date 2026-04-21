@@ -3,7 +3,9 @@ import { getAllPosts, getPostBySlug } from "@/lib/posts";
 import { format } from "date-fns";
 import Link from "next/link";
 import type { Metadata } from "next";
-import CodeHighlight from "@/components/CodeHighlight";
+import CommentSection from "@/components/comments/CommentSection";
+import PostViewCounter from "@/components/PostViewCounter";
+import PostContent from "@/components/editor/PostContent";
 
 const THUMB_ICONS: Record<number, string> = {
   1: "{ }",
@@ -94,7 +96,7 @@ export default async function PostPage({ params }: { params: Params }) {
                 <div className="flex items-center gap-2 text-xs text-white/60">
                   <time dateTime={post.date}>{format(new Date(post.date), "yyyy.MM.dd")}</time>
                   <span className="w-1 h-1 rounded-full bg-white/40" />
-                  <span>{post.readingTime}</span>
+                  <PostViewCounter slug={slug} />
                 </div>
               </div>
             </div>
@@ -115,13 +117,15 @@ export default async function PostPage({ params }: { params: Params }) {
         </div>
       </header>
 
-      {/* Post Content */}
-      <div className="max-w-3xl mx-auto px-6 py-12">
-        <CodeHighlight />
-        <div
-          className="prose prose-neutral dark:prose-invert max-w-none"
-          dangerouslySetInnerHTML={{ __html: post.content }}
-        />
+      {/* Post Content: 에디터와 동일한 BlockNote 스키마·컴포넌트를 읽기 전용으로 렌더.
+          HTML→.prose 렌더 대신 에디터와 같은 컴포넌트를 써서 작성·읽기 모양을 완전히 일치시킨다. */}
+      <div className="post-content-bg">
+        <div className="max-w-3xl mx-auto px-6 py-12">
+          <PostContent blocks={post.blocks} />
+
+          {/* 댓글 */}
+          <CommentSection slug={slug} />
+        </div>
       </div>
     </article>
   );

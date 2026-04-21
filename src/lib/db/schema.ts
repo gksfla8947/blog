@@ -5,8 +5,11 @@ import {
   boolean,
   jsonb,
   bigint,
+  integer,
   index,
+  primaryKey,
 } from "drizzle-orm/pg-core";
+import type { AdapterAccountType } from "next-auth/adapters";
 
 export const posts = pgTable("posts", {
   id: text("id").primaryKey(), // slug
@@ -43,7 +46,71 @@ export const blobFiles = pgTable(
   ]
 );
 
+// ─── Auth.js 테이블 ───────────────────────────────────────────────────────────
+
+export const authUsers = pgTable("auth_users", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  name: text("name"),
+  email: text("email").unique(),
+  emailVerified: timestamp("email_verified", { mode: "date" }),
+  image: text("image"),
+  createdAt: timestamp("created_at", { mode: "string" }).defaultNow(),
+});
+
+export const authAccounts = pgTable(
+  "auth_accounts",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => authUsers.id, { onDelete: "cascade" }),
+    type: text("type").$type<AdapterAccountType>().notNull(),
+    provider: text("provider").notNull(),
+    providerAccountId: text("provider_account_id").notNull(),
+    refresh_token: text("refresh_token"),
+    access_token: text("access_token"),
+    expires_at: integer("expires_at"),
+    token_type: text("token_type"),
+    scope: text("scope"),
+    id_token: text("id_token"),
+    session_state: text("session_state"),
+  },
+  (account) => [
+    primaryKey({ columns: [account.provider, account.providerAccountId] }),
+  ]
+);
+
+// ─── 댓글 테이블 ──────────────────────────────────────────────────────────────
+
+export const comments = pgTable(
+  "comments",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    postSlug: text("post_slug")
+      .notNull()
+      .references(() => posts.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => authUsers.id, { onDelete: "cascade" }),
+    content: text("content").notNull(),
+    createdAt: timestamp("created_at", { mode: "string" }).defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "string" }).defaultNow(),
+  },
+  (table) => [
+    index("comments_post_slug_idx").on(table.postSlug),
+    index("comments_user_id_idx").on(table.userId),
+  ]
+);
+
+// ─── 타입 ─────────────────────────────────────────────────────────────────────
+
 export type Post = typeof posts.$inferSelect;
 export type NewPost = typeof posts.$inferInsert;
 export type BlobFile = typeof blobFiles.$inferSelect;
 export type NewBlobFile = typeof blobFiles.$inferInsert;
+export type AuthUser = typeof authUsers.$inferSelect;
+export type Comment = typeof comments.$inferSelect;
+export type NewComment = typeof comments.$inferInsert;
