@@ -51,8 +51,8 @@
   --card: #111a2e;
   --card-border: #1c2a42;
   --card-hover: #162238;
-  /* 다크모드에선 포스트 뷰 배경을 body 배경과 동일하게 맞춤 */
-  --reading-bg: var(--background);
+  /* 다크모드에선 포스트 뷰 배경을 에디터 배경색과 맞춤 */
+  --reading-bg: #202020;
   --card-shadow: rgba(0, 0, 0, 0.4);
   --muted: #8a9a96;
   --accent: #4caf50;
