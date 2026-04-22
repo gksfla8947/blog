@@ -1,15 +1,15 @@
 import NextAuth from "next-auth";
-import Google from "next-auth/providers/google";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/lib/db";
 import { authUsers, authAccounts } from "@/lib/db/schema";
+import { nextAuthProviders } from "@/lib/auth/providers";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: DrizzleAdapter(db, {
     usersTable: authUsers,
     accountsTable: authAccounts,
   }),
-  providers: [Google],
+  providers: nextAuthProviders,
   session: { strategy: "jwt" },
   callbacks: {
     // JWT에 사용자 DB id 포함
