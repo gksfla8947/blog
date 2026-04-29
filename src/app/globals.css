@@ -549,8 +549,6 @@ body {
 .blocknote-editor .bn-block-content[data-content-type="heading"][data-level="2"] {
   --level: 1.5em;
   font-weight: 700;
-  padding-bottom: 0.4rem;
-  border-bottom: 1px solid var(--card-border);
 }
 .blocknote-editor .bn-block-content[data-content-type="heading"][data-level="3"] {
   --level: 1.25em;
