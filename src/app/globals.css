@@ -575,6 +575,17 @@ body {
   font-weight: 500;
 }
 
+/* 표 헤더 셀: tables.headers 옵션을 켜면 BlockNote 가 셀을 <th> 로 렌더한다.
+   기본 시각 구분이 약해서 배경·굵기를 보강. 셀 배경 색을 별도로 칠한
+   경우(`background-color` inline 스타일) 그쪽이 우선되도록 일반 선언만 사용. */
+.blocknote-editor [data-content-type="table"] th {
+  background: var(--card-hover);
+  font-weight: 700;
+}
+.dark .blocknote-editor [data-content-type="table"] th {
+  background: color-mix(in srgb, var(--accent) 12%, var(--card));
+}
+
 /* 링크: 본문 색상과 분리되도록 accent 컬러 + 밑줄.
    보이는 텍스트와 실제 URL 은 서로 달라도 됨 — BlockNote 가
    <a href="..."> 의 href 와 텍스트를 분리해 저장한다. */

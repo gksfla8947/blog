@@ -23,6 +23,13 @@ export default function PostRenderer({ blocks }: PostRendererProps) {
   const editor = useCreateBlockNote({
     schema: blocknoteSchema,
     initialContent: initial as any,
+    // 에디터와 동일한 표 옵션을 켜야 헤더/병합/색상 속성이 동일한 스키마로 직렬화·역직렬화된다.
+    tables: {
+      headers: true,
+      splitCells: true,
+      cellBackgroundColor: true,
+      cellTextColor: true,
+    },
   });
 
   // BlockNote 내부가 브라우저 전용 API를 쓰므로 마운트 이후에만 렌더

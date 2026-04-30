@@ -77,6 +77,15 @@ const PostEditor = forwardRef<PostEditorRef, PostEditorProps>(
 
     const editor = useCreateBlockNote({
       schema,
+      // 표 블록 고급 기능: 헤더 행/열 지정, 셀 합치기/분리, 셀 색상.
+      // 셀 안에 다른 블록(제목·리스트 등)을 넣는 건 BlockNote 표 스키마의
+      // 하드 제약(content: tableContent+ → inline*)으로 불가하다.
+      tables: {
+        headers: true,
+        splitCells: true,
+        cellBackgroundColor: true,
+        cellTextColor: true,
+      },
       uploadFile: async (file: File) => {
         const formData = new FormData();
         formData.append("file", file);
