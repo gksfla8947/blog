@@ -140,6 +140,23 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
   return dbPostToPost(row);
 }
 
+/**
+ * 빌드 안전 버전: Neon 이 응답 없을 때 빈 배열 반환.
+ * SSG/sitemap 등 빌드 단계에서 DB flake 가 배포 전체를 죽이지 않도록 사용한다.
+ * 런타임 핸들러에선 직접 getAllPosts 를 써서 진짜 에러가 보이게 두는 게 낫다.
+ */
+export async function getAllPostsForBuild(): Promise<Post[]> {
+  try {
+    return await getAllPosts();
+  } catch (err) {
+    console.warn(
+      "[getAllPostsForBuild] DB unavailable, returning empty list:",
+      err,
+    );
+    return [];
+  }
+}
+
 export async function getAllCategories(): Promise<string[]> {
   const allPosts = await getAllPosts();
   const catSet = new Set<string>();

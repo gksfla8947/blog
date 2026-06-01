@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getAllPosts, getPostBySlug } from "@/lib/posts";
+import { getAllPostsForBuild, getPostBySlug } from "@/lib/posts";
 import { format } from "date-fns";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -18,20 +18,11 @@ const THUMB_ICONS: Record<number, string> = {
 type Params = Promise<{ slug: string }>;
 
 export async function generateStaticParams() {
-  // Neon 이 flaky 한 순간 SSG 가 빌드 전체를 깨뜨리는 걸 막는 안전망.
-  // 실패 시 빈 배열 → Next.js 의 dynamicParams=true(기본값) 덕분에 모든 슬러그가
-  // 첫 요청 시 동적으로 렌더되고 이후 캐시된다. 다음 빌드에서 DB 가 정상이면
-  // SSG 가 자동 회복.
-  try {
-    const posts = await getAllPosts();
-    return posts.map((post) => ({ slug: post.slug }));
-  } catch (err) {
-    console.warn(
-      "[generateStaticParams] DB unavailable, falling back to dynamic rendering:",
-      err,
-    );
-    return [];
-  }
+  // getAllPostsForBuild 가 DB flake 를 흡수해 빈 배열을 반환. Next.js 의
+  // dynamicParams=true(기본값) 덕분에 슬러그 미등록 페이지는 첫 요청 시 동적
+  // 렌더 후 캐시. 다음 빌드에서 DB 가 정상이면 SSG 가 자동 회복.
+  const posts = await getAllPostsForBuild();
+  return posts.map((post) => ({ slug: post.slug }));
 }
 
 const BASE_URL = "https://devs-vltra.vercel.app";
