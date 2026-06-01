@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 import { db } from "@/lib/db";
+import { withDbRetry } from "@/lib/db/retry";
 import { blobFiles, posts } from "@/lib/db/schema";
 import { isAuthenticated } from "@/lib/auth";
 import { randomUUID } from "crypto";
@@ -46,25 +47,30 @@ export async function POST(request: NextRequest) {
   });
 
   // postSlug FK 검증: 아직 저장되지 않은 새 글 작성 중일 수 있으므로
-  // posts 테이블에 실제로 존재하는 경우에만 FK로 연결, 없으면 null
+  // posts 테이블에 실제로 존재하는 경우에만 FK로 연결, 없으면 null.
+  // Neon control-plane 일시 오류는 withDbRetry 가 자동으로 흡수.
   let resolvedPostSlug: string | null = null;
   if (postSlug) {
-    const existing = await db
-      .select({ id: posts.id })
-      .from(posts)
-      .where(eq(posts.id, postSlug))
-      .limit(1);
+    const existing = await withDbRetry(() =>
+      db
+        .select({ id: posts.id })
+        .from(posts)
+        .where(eq(posts.id, postSlug))
+        .limit(1),
+    );
     resolvedPostSlug = existing.length > 0 ? postSlug : null;
   }
 
-  await db.insert(blobFiles).values({
-    id: randomUUID(),
-    url: blob.url,
-    pathname: blob.pathname,
-    size: file.size,
-    contentType: contentType,
-    postSlug: resolvedPostSlug,
-  });
+  await withDbRetry(() =>
+    db.insert(blobFiles).values({
+      id: randomUUID(),
+      url: blob.url,
+      pathname: blob.pathname,
+      size: file.size,
+      contentType: contentType,
+      postSlug: resolvedPostSlug,
+    }),
+  );
 
   return NextResponse.json({ url: blob.url });
 }
