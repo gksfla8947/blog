@@ -6,6 +6,8 @@ import type { Metadata } from "next";
 import CommentSection from "@/components/comments/CommentSection";
 import PostViewCounter from "@/components/PostViewCounter";
 import PostContent from "@/components/editor/PostContent";
+import PostNavigation from "@/components/post/PostNavigation";
+import AllPostsList from "@/components/post/AllPostsList";
 
 const THUMB_ICONS: Record<number, string> = {
   1: "{ }",
@@ -59,6 +61,10 @@ export default async function PostPage({ params }: { params: Params }) {
 
   const post = await getPostBySlug(slug);
   if (!post) notFound();
+
+  // 빌드 캐시(getAllPostsForBuild → 내부 Map) 덕분에 DB 추가 호출 없음.
+  // Neon flake 로 비어 있을 때도 nav/list 가 그냥 안 보일 뿐 페이지는 정상 렌더.
+  const allPosts = await getAllPostsForBuild();
 
   return (
     <article className="animate-in">
@@ -125,6 +131,20 @@ export default async function PostPage({ params }: { params: Params }) {
       <div className="post-content-bg">
         <div className="max-w-3xl mx-auto px-6 py-12">
           <PostContent blocks={post.blocks} />
+
+          {/* 같은 카테고리 내 이전/다음 글 */}
+          <PostNavigation
+            currentSlug={slug}
+            category={post.category}
+            allPosts={allPosts}
+          />
+
+          {/* 전체 글 목록 (카테고리별 아코디언) */}
+          <AllPostsList
+            currentSlug={slug}
+            currentCategory={post.category}
+            allPosts={allPosts}
+          />
 
           {/* 댓글 */}
           <CommentSection slug={slug} />
