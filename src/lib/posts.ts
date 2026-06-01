@@ -1,6 +1,7 @@
 import { db } from "./db";
 import { posts } from "./db/schema";
 import { eq, desc } from "drizzle-orm";
+import { withDbRetry } from "./db/retry";
 
 export interface Post {
   slug: string;
@@ -90,21 +91,22 @@ function dbPostToPost(row: typeof posts.$inferSelect): Post {
 }
 
 export async function getAllPosts(): Promise<Post[]> {
-  const rows = await db
-    .select()
-    .from(posts)
-    .where(eq(posts.published, true))
-    .orderBy(desc(posts.date));
+  // SSG 빌드에서 페이지당 60초 한도가 있어 hang 도 retry 대상으로 만든다.
+  const rows = await withDbRetry(() =>
+    db
+      .select()
+      .from(posts)
+      .where(eq(posts.published, true))
+      .orderBy(desc(posts.date)),
+  );
 
   return rows.map(dbPostToPost);
 }
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {
-  const rows = await db
-    .select()
-    .from(posts)
-    .where(eq(posts.id, slug))
-    .limit(1);
+  const rows = await withDbRetry(() =>
+    db.select().from(posts).where(eq(posts.id, slug)).limit(1),
+  );
 
   if (rows.length === 0) return null;
 
