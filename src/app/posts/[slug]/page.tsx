@@ -19,6 +19,11 @@ const THUMB_ICONS: Record<number, string> = {
 
 type Params = Promise<{ slug: string }>;
 
+// ISR 안전망: revalidatePath 호출이 누락되거나 DB 직접 편집이 일어나도
+// 최대 1시간 안에 PostNavigation·AllPostsList 가 갱신된다.
+// 일반 흐름(글 작성/수정/삭제)은 actions.ts 의 revalidateAllPostPages 로 즉시 무효화됨.
+export const revalidate = 3600;
+
 export async function generateStaticParams() {
   // getAllPostsForBuild 가 DB flake 를 흡수해 빈 배열을 반환. Next.js 의
   // dynamicParams=true(기본값) 덕분에 슬러그 미등록 페이지는 첫 요청 시 동적
